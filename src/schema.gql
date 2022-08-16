@@ -1,0 +1,21 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CreateAccountOutput {
+  error: String
+  ok: Boolean!
+}
+
+type Query {
+  me: CreateAccountOutput!
+}
+
+type Mutation {
+  createAccount(input: CreateAccountInput!): CreateAccountOutput!
+}
+
+input CreateAccountInput {
+  email: String!
+  password: String!
+}

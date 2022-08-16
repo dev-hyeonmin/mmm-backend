@@ -1,3 +1,6 @@
 # mmm backend
 
-The backend of mmm :)
+1. USER
+- login
+- logout
+- edit

@@ -3,8 +3,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import Joi from 'joi';
+import * as Joi from 'joi';
 import { join } from 'path';
+import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -21,7 +22,7 @@ import { UsersModule } from './users/users.module';
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
-        DB_NAME: Joi.string().required(),
+        DB_DATABASE: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -30,8 +31,8 @@ import { UsersModule } from './users/users.module';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [],
+      database: process.env.DB_DATABASE,
+      entities: [User],
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
