@@ -4,11 +4,11 @@ import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.d
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entity";
 import * as bcrypt from "bcrypt";
-import * as jwt from 'jsonwebtoken';
 import * as dayjs from "dayjs";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "src/jwt/jwt.service";
+import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
 
 @Injectable()
 export class UserService {
@@ -39,6 +39,30 @@ export class UserService {
             }
 
             const user = await this.users.save(this.users.create({ name, email, password }));            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async editProfile(id: number, {name, email, password}: EditProfileInput):Promise<EditProfileOutput> {
+        try {
+            const user = await this.users.findOneBy({ id });
+            if (!user) {
+                return { ok: false, error: "User not found." };
+            }
+
+            if (name) {
+                user.name = name;
+            }
+            if (email) {
+                user.email = email;
+            }
+            if (password) {
+                user.password = password;
+            }
+
+            await this.users.save(user);
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

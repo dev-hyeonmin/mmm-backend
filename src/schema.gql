@@ -2,6 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type User {
+  name: String!
+  email: String!
+  password: String!
+  verified: Boolean!
+  lastLogin: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type CreateAccountOutput {
   error: String
   ok: Boolean!
@@ -13,12 +26,18 @@ type LoginOutput {
   token: String
 }
 
+type EditProfileOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
-  me: CreateAccountOutput!
+  me: User!
 }
 
 type Mutation {
   createAccount(input: CreateAccountInput!): CreateAccountOutput!
+  editProfile(input: EditProfileInput!): EditProfileOutput!
   login(input: LoginInput!): LoginOutput!
 }
 
@@ -26,6 +45,12 @@ input CreateAccountInput {
   name: String!
   email: String!
   password: String!
+}
+
+input EditProfileInput {
+  name: String
+  email: String
+  password: String
 }
 
 input LoginInput {
