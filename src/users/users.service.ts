@@ -8,12 +8,14 @@ import * as jwt from 'jsonwebtoken';
 import * as dayjs from "dayjs";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
 import { Injectable } from "@nestjs/common";
+import { JwtService } from "src/jwt/jwt.service";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly users: Repository<User>,
+        private readonly jwtService: JwtService,
     ) { }
 
     async findById(id: number): Promise<UserProfileOutput> {
@@ -57,7 +59,7 @@ export class UserService {
 
             this.users.update(user.id, { "lastLogin": this.getNow() });
 
-            const token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60), "id": user.id }, "9FrpJBJGEmrQun4xQJQQA7DMOFgFtiJD");
+            const token = this.jwtService.sign(user.id);
             return { ok: true, token: token };
         } catch (error) {
             throw { ok: false, error };

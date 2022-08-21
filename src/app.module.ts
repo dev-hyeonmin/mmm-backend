@@ -41,8 +41,13 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      context: ({ req }) => {
+        {token: req.headers['x-jwt']}
+      }
     }),
-    JwtModule,
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY
+    }),
     UsersModule,    
   ],
   controllers: [],
