@@ -27,7 +27,7 @@ export class UserService {
 
             return {ok: true, user};
         } catch (error) {
-            return { ok: false, error };
+            return {ok: false, error: "User Not Found."}
         }
     }
 
@@ -82,7 +82,6 @@ export class UserService {
             }
 
             this.users.update(user.id, { "lastLogin": this.getNow() });
-
             const token = this.jwtService.sign(user.id);
             return { ok: true, token: token };
         } catch (error) {
