@@ -5,6 +5,7 @@ import { AuthGuard } from "src/auth/auth.guard";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
+import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { User } from "./entities/user.entity";
 import { UserService } from "./users.service";
 
@@ -37,5 +38,10 @@ export class UsersResolver {
     @Mutation(returns => LoginOutput)
     async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
         return this.userService.login(loginInput);
+    }
+
+    @Mutation(returns => VerifyEmailOutput)
+    async verifyEmail (@Args('input') { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
+        return this.userService.verifyEmail(code);
     }
 }

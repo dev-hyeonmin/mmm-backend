@@ -31,6 +31,11 @@ type EditProfileOutput {
   ok: Boolean!
 }
 
+type VerifyEmailOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
   me: User!
 }
@@ -39,6 +44,7 @@ type Mutation {
   createAccount(input: CreateAccountInput!): CreateAccountOutput!
   editProfile(input: EditProfileInput!): EditProfileOutput!
   login(input: LoginInput!): LoginOutput!
+  verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
 }
 
 input CreateAccountInput {
@@ -56,4 +62,8 @@ input EditProfileInput {
 input LoginInput {
   email: String!
   password: String!
+}
+
+input VerifyEmailInput {
+  code: String!
 }

@@ -10,6 +10,8 @@ import { UsersModule } from './users/users.module';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { Verification } from './users/entities/verification.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { AuthModule } from './auth/auth.module';
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
         PRIVATE_KEY: Joi.string().required(),
+        SENDGRID_API_KEY: Joi.string().required(),
+        SENDGRID_FROM_EMAIL: Joi.string().required()
       }),
     }),
     TypeOrmModule.forRoot({
@@ -36,7 +40,7 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User],
+      entities: [User, Verification],
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -49,8 +53,12 @@ import { AuthModule } from './auth/auth.module';
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
     }),
+    MailModule.forRoot({
+      apiKey: process.env.SENDGRID_API_KEY,
+      fromMail: process.env.SENDGRID_FROM_EMAIL
+    }), 
     UsersModule,
-    AuthModule,    
+    AuthModule,   
   ],
   controllers: [],
   providers: [],

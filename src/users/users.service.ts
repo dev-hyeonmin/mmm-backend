@@ -5,17 +5,24 @@ import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entity";
 import * as bcrypt from "bcrypt";
 import * as dayjs from "dayjs";
+//import * as sgMail from "@sendgrid/mail";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Query } from "@nestjs/common";
 import { JwtService } from "src/jwt/jwt.service";
 import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
+import { Verification } from "./entities/verification.entity";
+import { VerifyEmailOutput } from "./dtos/verify-email.dto";
+import { MailService } from "src/mail/mail.service";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly users: Repository<User>,
+        @InjectRepository(Verification)
+        private readonly verification: Repository<Verification>,
         private readonly jwtService: JwtService,
+        private readonly mailService: MailService
     ) { }
 
     async findById(id: number): Promise<UserProfileOutput> {
@@ -38,7 +45,11 @@ export class UserService {
                 return {ok: false, error: "There is a user with that email already."}
             }
 
-            const user = await this.users.save(this.users.create({ name, email, password }));            
+            const user = await this.users.save(this.users.create({ name, email, password }));
+            const verification = await this.verification.save(this.verification.create({ user }));
+            
+            this.mailService.send(email, verification.code);
+            
             return { ok: true };
         } catch (error) {
             return { ok: false, error };
@@ -87,6 +98,26 @@ export class UserService {
         } catch (error) {
             throw { ok: false, error };
         }
+    }
+
+    async verifyEmail(code: string): Promise<VerifyEmailOutput> {
+        try {
+            const verification = await this.verification.findOne({ where: {code}, relations: ['user'] });
+            
+            if (verification) {
+                verification.user.verified = true;
+                this.users.save(verification.user);
+                this.verification.delete(verification.id);
+                return { ok: true };
+            }
+
+            return {
+                ok: false,
+                error: 'Verification not found.'
+            };
+        } catch (error) {
+            return { ok: false, error };
+        }        
     }
 
     private getNow(): string {
