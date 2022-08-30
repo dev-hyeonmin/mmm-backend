@@ -1,9 +1,10 @@
-import { UseGuards } from "@nestjs/common";
-import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import {UseGuards } from "@nestjs/common";
+import { Args, Query, Mutation, Resolver } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
-import { CreateMemoInput, CreateMemoOutput } from "./dtos/create-memo.dto";
-import { CreateMemoGroupInput, CreateMemoGroupOutput } from "./dtos/create-memoGroup.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput } from "./dtos/memo-group.dto";
+import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
 
 @Resolver()
@@ -12,7 +13,13 @@ export class MeomoResolver {
         private readonly memoService: MemoService
     ) { }
 
-    @Mutation(type => CreateMemoGroupOutput)
+    @Query(returns => MyMemosOutput)
+    @UseGuards(AuthGuard)
+    myMemos(@AuthUser() userData): Promise<MyMemosOutput> {
+        return this.memoService.myMemos(userData);
+    }
+        
+    @Mutation(returns => CreateMemoGroupOutput)
     @UseGuards(AuthGuard)
     createMemoGroup(
         @AuthUser() userData,
@@ -21,11 +28,23 @@ export class MeomoResolver {
         return this.memoService.createMemoGroup(userData, title);
     }
 
-    @Mutation(type => CreateMemoOutput)
+    @Mutation(returns => CreateMemoOutput)
     @UseGuards(AuthGuard)
     createMemo(
-        @Args('input') createMemoInput: CreateMemoInput
+        @Args('input') CreateMemoInput: CreateMemoInput
     ): Promise<CreateMemoOutput> {
-        return this.memoService.createMemo(createMemoInput);
+        return this.memoService.createMemo(CreateMemoInput);
+    }
+
+    @Mutation(returns => DeleteMemoGroupOutput)
+    @UseGuards(AuthGuard)
+    deleteMemoGroup({ id }: DeleteMemoGroupInput): Promise<DeleteMemoGroupOutput> {
+        return this.memoService.deleteMemoGroup(id);
+    }
+
+    @Mutation(returns => DeleteMemoOutput)
+    @UseGuards(AuthGuard)
+    deleteGroup({ id }: DeleteMemoInput): Promise<DeleteMemoOutput> {
+        return this.memoService.deleteMemo(id);
     }
 }

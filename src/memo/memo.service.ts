@@ -3,8 +3,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput } from "./dtos/create-memo.dto";
-import { CreateMemoGroupOutput } from "./dtos/create-memoGroup.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoGroupOutput, DeleteMemoGroupOutput } from "./dtos/memo-group.dto";
+import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
 
@@ -16,6 +17,22 @@ export class MemoService {
         @InjectRepository(Memo)
         private readonly memo: Repository<Memo>
     ) { }
+
+    async myMemos(user: User): Promise<MyMemosOutput> {
+        try {     
+            const memos = await this.memoGroup.find({
+                where: { 
+                    user: {
+                        id: user.id
+                    }    
+                }
+            });
+            
+            return { ok: true, groups: memos };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
 
     async createMemoGroup(user: User, title: string): Promise<CreateMemoGroupOutput> {
         try {
@@ -34,6 +51,34 @@ export class MemoService {
             }
             
             await this.memo.save(this.memo.create({ content, group}));
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async deleteMemoGroup(id: number): Promise<DeleteMemoGroupOutput> {
+        try {
+            const group = await this.memoGroup.findOneBy({ id });
+            if (!group) {
+                return { ok: false, error: "Group Not Found." };
+            }
+
+            await this.memoGroup.delete(id);            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async deleteMemo(id: number): Promise<DeleteMemoOutput> {
+        try {
+            const memo = await this.memo.findOneBy({ id });
+            if (!memo) {
+                return { ok: false, error: "Memo Not Found." };
+            }
+            
+            await this.memo.delete(id);            
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

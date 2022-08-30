@@ -12,6 +12,6 @@ export class Memo extends CoreEntity {
     @Field(types => String)
     content: string;
 
-    @ManyToOne(() => MemoGroup, (memoGroup) => memoGroup.memeos)
+    @ManyToOne(() => MemoGroup, (memoGroup) => memoGroup.memos)
     group: MemoGroup;
 }

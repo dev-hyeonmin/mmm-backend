@@ -2,6 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Memo {
+  id: Float!
+  content: String!
+}
+
+type MemoGroup {
+  id: Float!
+  title: String!
+  user: User!
+  memos: [Memo!]
+}
+
 type User {
   id: Float!
   name: String!
@@ -42,13 +54,30 @@ type CreateMemoOutput {
   ok: Boolean!
 }
 
+type DeleteMemoOutput {
+  error: String
+  ok: Boolean!
+}
+
 type CreateMemoGroupOutput {
   error: String
   ok: Boolean!
 }
 
+type DeleteMemoGroupOutput {
+  error: String
+  ok: Boolean!
+}
+
+type MyMemosOutput {
+  error: String
+  ok: Boolean!
+  groups: [MemoGroup!]
+}
+
 type Query {
   me: User!
+  myMemos: MyMemosOutput!
 }
 
 type Mutation {
@@ -58,6 +87,8 @@ type Mutation {
   verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
   createMemoGroup(input: CreateMemoGroupInput!): CreateMemoGroupOutput!
   createMemo(input: CreateMemoInput!): CreateMemoOutput!
+  deleteMemoGroup: DeleteMemoGroupOutput!
+  deleteGroup: DeleteMemoOutput!
 }
 
 input CreateAccountInput {

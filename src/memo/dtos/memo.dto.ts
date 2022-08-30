@@ -11,4 +11,12 @@ export class CreateMemoInput extends PickType(Memo, [
 }
 
 @ObjectType()
-export class CreateMemoOutput extends CoreOutput {}
+export class CreateMemoOutput extends CoreOutput { }
+
+@InputType()
+export class DeleteMemoInput extends PickType(Memo, [
+    'id'
+]) { }
+
+@ObjectType()
+export class DeleteMemoOutput extends CoreOutput {}

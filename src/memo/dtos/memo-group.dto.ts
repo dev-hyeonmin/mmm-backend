@@ -8,4 +8,12 @@ export class CreateMemoGroupInput extends PickType(MemoGroup, [
 ]) { }
 
 @ObjectType()
-export class CreateMemoGroupOutput extends CoreOutput {}
+export class CreateMemoGroupOutput extends CoreOutput { }
+
+@InputType()
+export class DeleteMemoGroupInput extends PickType(MemoGroup, [
+    'id'
+]) { }
+
+@ObjectType()
+export class DeleteMemoGroupOutput extends CoreOutput {}

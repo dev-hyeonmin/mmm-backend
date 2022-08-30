@@ -42,6 +42,10 @@ export class User extends CoreEntity {
         }
     }
 
-    @OneToMany(() => MemoGroup, (memoGroup) => memoGroup.user)
+    @OneToMany(
+        () => MemoGroup,
+        (memoGroup) => memoGroup.user,
+        { onDelete: "CASCADE" }
+    )
     memoGroup: MemoGroup[];
 }
