@@ -12,6 +12,9 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { MemoModule } from './memo/memo.module';
+import { Memo } from './memo/entities/memo.entity';
+import { MemoGroup } from './memo/entities/memo-group.entity';
 
 @Module({
   imports: [
@@ -30,7 +33,8 @@ import { MailModule } from './mail/mail.module';
         DB_DATABASE: Joi.string().required(),
         PRIVATE_KEY: Joi.string().required(),
         SENDGRID_API_KEY: Joi.string().required(),
-        SENDGRID_FROM_EMAIL: Joi.string().required()
+        SENDGRID_FROM_EMAIL: Joi.string().required(),
+        SENDGRID_FROM_URL: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -40,7 +44,7 @@ import { MailModule } from './mail/mail.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Verification],
+      entities: [User, Verification, MemoGroup, Memo],
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -55,10 +59,12 @@ import { MailModule } from './mail/mail.module';
     }),
     MailModule.forRoot({
       apiKey: process.env.SENDGRID_API_KEY,
-      fromMail: process.env.SENDGRID_FROM_EMAIL
+      fromMail: process.env.SENDGRID_FROM_EMAIL,
+      url: process.env.SENDGRID_FROM_URL,
     }), 
     UsersModule,
-    AuthModule,   
+    AuthModule,
+    MemoModule,   
   ],
   controllers: [],
   providers: [],

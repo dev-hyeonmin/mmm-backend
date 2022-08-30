@@ -2,7 +2,8 @@ import * as bcrypt from "bcrypt";
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/core.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, UpdateDateColumn } from "typeorm";
+import { MemoGroup } from "src/memo/entities/memo-group.entity";
 
 @InputType("UserInputType", { isAbstract: true })
 @ObjectType() // 자동으로 스키마를 빌드하기 위한 GraphQL의 decorator
@@ -40,4 +41,7 @@ export class User extends CoreEntity {
             }
         }
     }
+
+    @OneToMany(() => MemoGroup, (memoGroup) => memoGroup.user)
+    memoGroup: MemoGroup[];
 }

@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 type User {
+  id: Float!
   name: String!
   email: String!
   password: String!
@@ -36,6 +37,16 @@ type VerifyEmailOutput {
   ok: Boolean!
 }
 
+type CreateMemoOutput {
+  error: String
+  ok: Boolean!
+}
+
+type CreateMemoGroupOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
   me: User!
 }
@@ -45,6 +56,8 @@ type Mutation {
   editProfile(input: EditProfileInput!): EditProfileOutput!
   login(input: LoginInput!): LoginOutput!
   verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
+  createMemoGroup(input: CreateMemoGroupInput!): CreateMemoGroupOutput!
+  createMemo(input: CreateMemoInput!): CreateMemoOutput!
 }
 
 input CreateAccountInput {
@@ -66,4 +79,13 @@ input LoginInput {
 
 input VerifyEmailInput {
   code: String!
+}
+
+input CreateMemoGroupInput {
+  title: String!
+}
+
+input CreateMemoInput {
+  content: String!
+  groupId: Float!
 }
