@@ -59,12 +59,22 @@ type DeleteMemoOutput {
   ok: Boolean!
 }
 
+type EditMemoOutput {
+  error: String
+  ok: Boolean!
+}
+
 type CreateMemoGroupOutput {
   error: String
   ok: Boolean!
 }
 
 type DeleteMemoGroupOutput {
+  error: String
+  ok: Boolean!
+}
+
+type EditMemoGroupOutput {
   error: String
   ok: Boolean!
 }
@@ -88,7 +98,9 @@ type Mutation {
   createMemoGroup(input: CreateMemoGroupInput!): CreateMemoGroupOutput!
   createMemo(input: CreateMemoInput!): CreateMemoOutput!
   deleteMemoGroup: DeleteMemoGroupOutput!
-  deleteGroup: DeleteMemoOutput!
+  deleteMemo: DeleteMemoOutput!
+  editMemoGroup(input: EditMemoGroupInput!): EditMemoGroupOutput!
+  editMemo(input: EditMemoInput!): EditMemoOutput!
 }
 
 input CreateAccountInput {
@@ -119,4 +131,15 @@ input CreateMemoGroupInput {
 input CreateMemoInput {
   content: String!
   groupId: Float!
+}
+
+input EditMemoGroupInput {
+  id: Float!
+  title: String!
+}
+
+input EditMemoInput {
+  id: Float!
+  content: String
+  groupId: Float
 }

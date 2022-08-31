@@ -3,8 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput } from "./dtos/memo.dto";
-import { CreateMemoGroupOutput, DeleteMemoGroupOutput } from "./dtos/memo-group.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
@@ -79,6 +79,45 @@ export class MemoService {
             }
             
             await this.memo.delete(id);            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async editMemoGroup({id, title}: EditMemoGroupInput): Promise<EditMemoGroupOutput> {
+        try {
+            const group = await this.memoGroup.findOneBy({ id });
+            if (!group) {
+                return { ok: false, error: "Group Not Found." };
+            }
+
+            group.title = title;
+            await this.memoGroup.save(group);
+            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async editMemo({id, content, groupId}: EditMemoInput): Promise<EditMemoOutput> {
+        try {
+            const group = await this.memoGroup.findOneBy({ id: groupId });
+            const memo = await this.memo.findOneBy({ id });
+            if (!memo) {
+                return { ok: false, error: "Memo Not Found." };
+            }
+            
+            if (content) {
+                memo.content = content;    
+            }
+
+            if (groupId) {
+                memo.group = group;
+            }
+
+            await this.memo.save(memo);        
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

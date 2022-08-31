@@ -1,7 +1,7 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/core.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, JoinTable, ManyToOne, OneToMany } from "typeorm";
 import { Memo } from "./memo.entity";
 
 @InputType("MemoGroupType", { isAbstract: true })

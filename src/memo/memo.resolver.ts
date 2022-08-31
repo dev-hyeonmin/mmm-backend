@@ -2,8 +2,8 @@ import {UseGuards } from "@nestjs/common";
 import { Args, Query, Mutation, Resolver } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput } from "./dtos/memo.dto";
-import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput } from "./dtos/memo-group.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, EditMemoInput, EditMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
 
@@ -44,7 +44,19 @@ export class MeomoResolver {
 
     @Mutation(returns => DeleteMemoOutput)
     @UseGuards(AuthGuard)
-    deleteGroup({ id }: DeleteMemoInput): Promise<DeleteMemoOutput> {
+    deleteMemo({ id }: DeleteMemoInput): Promise<DeleteMemoOutput> {
         return this.memoService.deleteMemo(id);
+    }
+
+    @Mutation(returns => EditMemoGroupOutput)
+    @UseGuards(AuthGuard)
+    editMemoGroup(@Args('input') editMemoGroupInput: EditMemoGroupInput): Promise<EditMemoGroupOutput> {
+        return this.memoService.editMemoGroup(editMemoGroupInput);
+    }
+
+    @Mutation(returns => EditMemoOutput)
+    @UseGuards(AuthGuard)
+    editMemo(@Args('input') editMemoInput: EditMemoInput): Promise<EditMemoOutput> {
+        return this.memoService.editMemo(editMemoInput);
     }
 }
