@@ -11,7 +11,11 @@ export class Memo extends CoreEntity {
     @Column()
     @Field(types => String)
     content: string;
-
+    
+    @Column({ default: 0 })
+    @Field(types => Number)
+    orderby: number;
+        
     @RelationId((memo: Memo) => memo.group)
     groupId: number;
     

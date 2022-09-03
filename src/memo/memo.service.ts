@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, RangeMemoInput, RangeMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
@@ -24,7 +24,13 @@ export class MemoService {
                 where: { 
                     user: {
                         id: user.id
-                    }    
+                    }
+                },
+                order: {
+                    id: "ASC",
+                    memos: {
+                        orderby: "ASC"
+                    }
                 }
             });
             
@@ -92,7 +98,10 @@ export class MemoService {
                 return { ok: false, error: "Group Not Found." };
             }
 
-            group.title = title;
+            if (title) {
+                group.title = title;
+            }
+            
             await this.memoGroup.save(group);
             
             return { ok: true };
@@ -101,7 +110,7 @@ export class MemoService {
         }
     }
 
-    async editMemo({id, content, groupId}: EditMemoInput): Promise<EditMemoOutput> {
+    async editMemo({id, content, orderby, groupId}: EditMemoInput): Promise<EditMemoOutput> {
         try {
             const group = await this.memoGroup.findOneBy({ id: groupId });
             const memo = await this.memo.findOneBy({ id });
@@ -113,11 +122,33 @@ export class MemoService {
                 memo.content = content;    
             }
 
+            if (orderby) {
+                memo.orderby = orderby;    
+            }
+
             if (groupId) {
                 memo.group = group;
             }
 
-            await this.memo.save(memo);        
+            await this.memo.save(memo);     
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async rangeMemo({ memoIds }: RangeMemoInput): Promise<RangeMemoOutput> {
+        try {
+            const memos = [];
+            memoIds.map((id, index) => {
+                memos.push({
+                    id,
+                    orderby: index
+                })
+            });
+
+            this.memo.save(memos);
+            
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

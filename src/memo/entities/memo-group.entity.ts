@@ -20,7 +20,7 @@ export class MemoGroup extends CoreEntity {
     @OneToMany(
         () => Memo,
         (memo) => memo.group,
-        { onDelete: "CASCADE", eager: true }
+        { onDelete: "CASCADE", eager: true },
     )    
     memos?: Memo[];
 }
