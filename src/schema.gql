@@ -65,7 +65,7 @@ type EditMemoOutput {
   ok: Boolean!
 }
 
-type RangeMemoOutput {
+type SortMemoOutput {
   error: String
   ok: Boolean!
 }
@@ -107,7 +107,7 @@ type Mutation {
   deleteMemo: DeleteMemoOutput!
   editMemoGroup(input: EditMemoGroupInput!): EditMemoGroupOutput!
   editMemo(input: EditMemoInput!): EditMemoOutput!
-  rangeMemo(input: RangeMemoInput!): RangeMemoOutput!
+  sortMemo(input: SortMemoInput!): SortMemoOutput!
 }
 
 input CreateAccountInput {
@@ -152,6 +152,12 @@ input EditMemoInput {
   orderby: Float
 }
 
-input RangeMemoInput {
-  memoIds: [Float!]
+input SortMemoInput {
+  memos: [MemoType!]
+}
+
+input MemoType {
+  id: Float!
+  content: String!
+  orderby: Float!
 }

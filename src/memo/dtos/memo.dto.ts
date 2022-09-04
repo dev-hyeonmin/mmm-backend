@@ -1,8 +1,5 @@
 import { Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
-import { number } from "joi";
 import { CoreOutput } from "src/common/dtos/output.dto";
-import { Any } from "typeorm";
-import { MemoGroup } from "../entities/memo-group.entity";
 import { Memo } from "../entities/memo.entity";
 
 @InputType()
@@ -43,10 +40,10 @@ export class EditMemoOutput extends CoreOutput { }
 
 
 @InputType()
-export class RangeMemoInput {
-    @Field(types => [Number], { nullable: true })
-    memoIds?: number[];
+export class SortMemoInput {
+    @Field(types => [Memo], { nullable: true })
+    memos?: Memo[];
 }
 
 @ObjectType()
-export class RangeMemoOutput extends CoreOutput {}
+export class SortMemoOutput extends CoreOutput {}

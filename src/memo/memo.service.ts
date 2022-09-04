@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, RangeMemoInput, RangeMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
@@ -96,12 +96,13 @@ export class MemoService {
             const group = await this.memoGroup.findOneBy({ id });
             if (!group) {
                 return { ok: false, error: "Group Not Found." };
-            }
+            }            
 
-            if (title) {
-                group.title = title;
-            }
+            if (!title) {
+                return { ok: false, error: "Title Not Found." };
+            } 
             
+            group.title = title;
             await this.memoGroup.save(group);
             
             return { ok: true };
@@ -137,16 +138,8 @@ export class MemoService {
         }
     }
 
-    async rangeMemo({ memoIds }: RangeMemoInput): Promise<RangeMemoOutput> {
+    async sortMemo({ memos }: SortMemoInput): Promise<SortMemoOutput> {
         try {
-            const memos = [];
-            memoIds.map((id, index) => {
-                memos.push({
-                    id,
-                    orderby: index
-                })
-            });
-
             this.memo.save(memos);
             
             return { ok: true };
