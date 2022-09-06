@@ -1,4 +1,6 @@
-import { Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
+import { Field, InputType, ObjectType, PartialType, PickType } from "@nestjs/graphql";
+import { number } from "joi";
+import { type } from "os";
 import { CoreOutput } from "src/common/dtos/output.dto";
 import { Memo } from "../entities/memo.entity";
 
@@ -11,7 +13,10 @@ export class CreateMemoInput extends PickType(Memo, [
 }
 
 @ObjectType()
-export class CreateMemoOutput extends CoreOutput { }
+export class CreateMemoOutput extends CoreOutput {
+    @Field(types => Number, { nullable: true })
+    id?: number;
+}
 
 @InputType()
 export class DeleteMemoInput extends PickType(Memo, [
@@ -22,17 +27,14 @@ export class DeleteMemoInput extends PickType(Memo, [
 export class DeleteMemoOutput extends CoreOutput { }
 
 @InputType()
-export class EditMemoInput extends PickType(Memo, [
+export class EditMemoInput extends PickType(PartialType(Memo), [
     'id',
+    'content',
+    'orderby',
+    'color'
 ]) {
-    @Field(types => String, {nullable: true})
-    content?: string;
-
     @Field(types => Number, {nullable: true})
     groupId?: number;
-
-    @Field(types => Number, {nullable: true})
-    orderby?: number;
 }
 
 @ObjectType()

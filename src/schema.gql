@@ -6,6 +6,7 @@ type Memo {
   id: Float!
   content: String!
   orderby: Float!
+  color: String!
 }
 
 type MemoGroup {
@@ -53,6 +54,7 @@ type VerifyEmailOutput {
 type CreateMemoOutput {
   error: String
   ok: Boolean!
+  id: Float
 }
 
 type DeleteMemoOutput {
@@ -103,8 +105,8 @@ type Mutation {
   verifyEmail(input: VerifyEmailInput!): VerifyEmailOutput!
   createMemoGroup(input: CreateMemoGroupInput!): CreateMemoGroupOutput!
   createMemo(input: CreateMemoInput!): CreateMemoOutput!
-  deleteMemoGroup: DeleteMemoGroupOutput!
-  deleteMemo: DeleteMemoOutput!
+  deleteMemoGroup(input: DeleteMemoGroupInput!): DeleteMemoGroupOutput!
+  deleteMemo(input: DeleteMemoInput!): DeleteMemoOutput!
   editMemoGroup(input: EditMemoGroupInput!): EditMemoGroupOutput!
   editMemo(input: EditMemoInput!): EditMemoOutput!
   sortMemo(input: SortMemoInput!): SortMemoOutput!
@@ -140,16 +142,25 @@ input CreateMemoInput {
   groupId: Float!
 }
 
+input DeleteMemoGroupInput {
+  id: Float!
+}
+
+input DeleteMemoInput {
+  id: Float!
+}
+
 input EditMemoGroupInput {
   id: Float!
   title: String!
 }
 
 input EditMemoInput {
-  id: Float!
+  id: Float
   content: String
-  groupId: Float
   orderby: Float
+  color: String
+  groupId: Float
 }
 
 input SortMemoInput {
@@ -160,4 +171,5 @@ input MemoType {
   id: Float!
   content: String!
   orderby: Float!
+  color: String!
 }

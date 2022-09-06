@@ -1,4 +1,4 @@
-import { Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import { CoreOutput } from "src/common/dtos/output.dto";
 import { MemoGroup } from "../entities/memo-group.entity";
 

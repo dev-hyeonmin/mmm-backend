@@ -18,7 +18,7 @@ export class MeomoResolver {
     myMemos(@AuthUser() userData): Promise<MyMemosOutput> {
         return this.memoService.myMemos(userData);
     }
-        
+
     @Mutation(returns => CreateMemoGroupOutput)
     @UseGuards(AuthGuard)
     createMemoGroup(
@@ -38,13 +38,13 @@ export class MeomoResolver {
 
     @Mutation(returns => DeleteMemoGroupOutput)
     @UseGuards(AuthGuard)
-    deleteMemoGroup({ id }: DeleteMemoGroupInput): Promise<DeleteMemoGroupOutput> {
+    deleteMemoGroup(@Args('input') { id }: DeleteMemoGroupInput): Promise<DeleteMemoGroupOutput> {
         return this.memoService.deleteMemoGroup(id);
     }
 
     @Mutation(returns => DeleteMemoOutput)
     @UseGuards(AuthGuard)
-    deleteMemo({ id }: DeleteMemoInput): Promise<DeleteMemoOutput> {
+    deleteMemo(@Args('input') { id }: DeleteMemoInput): Promise<DeleteMemoOutput> {
         return this.memoService.deleteMemo(id);
     }
 

@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { AuthUser } from "src/auth/auth-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
@@ -28,8 +27,9 @@ export class MemoService {
                 },
                 order: {
                     id: "ASC",
-                    memos: {
-                        orderby: "ASC"
+                    memos: {                        
+                        orderby: "ASC",
+                        id: "DESC"
                     }
                 }
             });
@@ -56,8 +56,8 @@ export class MemoService {
                 return { ok: false, error: "Group Not Found." };
             }
             
-            await this.memo.save(this.memo.create({ content, group}));
-            return { ok: true };
+            const memo = await this.memo.save(this.memo.create({ content, group}));
+            return { ok: true, id: memo.id };
         } catch (error) {
             return { ok: false, error };
         }
@@ -111,9 +111,12 @@ export class MemoService {
         }
     }
 
-    async editMemo({id, content, orderby, groupId}: EditMemoInput): Promise<EditMemoOutput> {
+    async editMemo({id, content, orderby, groupId, color}: EditMemoInput): Promise<EditMemoOutput> {
         try {
-            const group = await this.memoGroup.findOneBy({ id: groupId });
+            if (!id) {
+                return { ok: false, error: "id is required." };
+            }
+            
             const memo = await this.memo.findOneBy({ id });
             if (!memo) {
                 return { ok: false, error: "Memo Not Found." };
@@ -127,7 +130,12 @@ export class MemoService {
                 memo.orderby = orderby;    
             }
 
+            if (color) {
+                memo.color = color;    
+            }
+
             if (groupId) {
+                const group = await this.memoGroup.findOneBy({ id: groupId });
                 memo.group = group;
             }
 
