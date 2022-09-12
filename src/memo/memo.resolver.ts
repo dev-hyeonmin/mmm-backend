@@ -2,9 +2,9 @@ import {UseGuards } from "@nestjs/common";
 import { Args, Query, Mutation, Resolver } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoOutput, SortMemoInput } from "./dtos/memo.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoOutput, SortMemoInput, SearchMemoOutput, SearchMemoInput } from "./dtos/memo.dto";
 import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
-import { MyMemosOutput } from "./dtos/my-memos.dto";
+import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
 
 @Resolver()
@@ -15,8 +15,11 @@ export class MeomoResolver {
 
     @Query(returns => MyMemosOutput)
     @UseGuards(AuthGuard)
-    myMemos(@AuthUser() userData): Promise<MyMemosOutput> {
-        return this.memoService.myMemos(userData);
+    myMemos(
+        @AuthUser() userData,
+        @Args('input') myMemosInput: MyMemosInput
+    ): Promise<MyMemosOutput> {
+        return this.memoService.myMemos(userData, myMemosInput);
     }
 
     @Mutation(returns => CreateMemoGroupOutput)

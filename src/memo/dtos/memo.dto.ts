@@ -2,6 +2,7 @@ import { Field, InputType, ObjectType, PartialType, PickType } from "@nestjs/gra
 import { number } from "joi";
 import { type } from "os";
 import { CoreOutput } from "src/common/dtos/output.dto";
+import { MemoGroup } from "../entities/memo-group.entity";
 import { Memo } from "../entities/memo.entity";
 
 @InputType()
@@ -48,4 +49,16 @@ export class SortMemoInput {
 }
 
 @ObjectType()
-export class SortMemoOutput extends CoreOutput {}
+export class SortMemoOutput extends CoreOutput { }
+
+@InputType()
+export class SearchMemoInput {
+    @Field(types => String)
+    keyword: string;
+}
+
+@ObjectType()
+export class SearchMemoOutput extends CoreOutput {
+    @Field(types => [MemoGroup], { nullable: true })
+    memos?: MemoGroup[]; 
+}

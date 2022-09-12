@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
-import { Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
+import { Like, Repository } from "typeorm";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SearchMemoInput, SearchMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
-import { MyMemosOutput } from "./dtos/my-memos.dto";
+import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
 
@@ -17,9 +17,9 @@ export class MemoService {
         private readonly memo: Repository<Memo>
     ) { }
 
-    async myMemos(user: User): Promise<MyMemosOutput> {
-        try {     
-            const memos = await this.memoGroup.find({
+    async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
+        try {
+            let groups = await this.memoGroup.find({
                 where: { 
                     user: {
                         id: user.id
@@ -33,8 +33,7 @@ export class MemoService {
                     }
                 }
             });
-            
-            return { ok: true, groups: memos };
+            return { ok: true, groups };
         } catch (error) {
             return { ok: false, error };
         }
@@ -133,7 +132,7 @@ export class MemoService {
             if (color) {
                 memo.color = color;    
             }
-
+            
             if (groupId) {
                 const group = await this.memoGroup.findOneBy({ id: groupId });
                 memo.group = group;

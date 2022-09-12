@@ -6,7 +6,7 @@ type Memo {
   id: Float!
   content: String!
   orderby: Float!
-  color: String!
+  color: String
 }
 
 type MemoGroup {
@@ -95,7 +95,11 @@ type MyMemosOutput {
 
 type Query {
   me: User!
-  myMemos: MyMemosOutput!
+  myMemos(input: MyMemosInput!): MyMemosOutput!
+}
+
+input MyMemosInput {
+  keyword: String
 }
 
 type Mutation {
@@ -171,5 +175,5 @@ input MemoType {
   id: Float!
   content: String!
   orderby: Float!
-  color: String!
+  color: String
 }

@@ -16,8 +16,8 @@ export class Memo extends CoreEntity {
     orderby: number;
 
     @Column({ default: "#FFFFFF" })
-    @Field(types => String)
-    color: string;
+    @Field(types => String, {nullable: true})
+    color?: string;
         
     @RelationId((memo: Memo) => memo.group)
     groupId: number;
