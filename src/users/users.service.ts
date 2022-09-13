@@ -105,8 +105,10 @@ export class UserService {
             const verification = await this.verification.findOne({ where: {code}, relations: ['user'] });
             
             if (verification) {
-                verification.user.verified = true;
-                this.users.save(verification.user);
+                this.users.save({
+                    id: verification.user.id,
+                    verified: true
+                });
                 this.verification.delete(verification.id);
                 return { ok: true };
             }
