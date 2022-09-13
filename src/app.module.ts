@@ -21,7 +21,7 @@ import { MemoGroup } from './memo/entities/memo-group.entity';
     ConfigModule.forRoot({
       isGlobal: true, 
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
-      ignoreEnvFile: process.env.NODE_ENV === "prod",
+      //ignoreEnvFile: process.env.NODE_ENV === "prod",
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('dev', 'prod')
