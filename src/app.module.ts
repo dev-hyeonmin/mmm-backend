@@ -48,7 +48,7 @@ import { MemoGroup } from './memo/entities/memo-group.entity';
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME,
         }),
-      synchronize: process.env.NODE_ENV !== 'prod',
+      synchronize: true,
       entities: [User, Verification, MemoGroup, Memo],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
