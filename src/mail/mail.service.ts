@@ -11,8 +11,8 @@ export class MailService {
         const sgMail = require('@sendgrid/mail');
         sgMail.setApiKey(this.options.apiKey);            
         const msg = {
-            //to: sendMail, // Change to your recipient
-            to: this.options.fromMail,
+            to: sendMail, // Change to your recipient
+            //to: this.options.fromMail,
             from: this.options.fromMail, // Change to your verified sender
             subject: '[mmm] Verfiy Email ;D',
             html: `<h3>mmm._.mmm</h3><br>
