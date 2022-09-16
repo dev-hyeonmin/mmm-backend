@@ -15,6 +15,7 @@ import { MailModule } from './mail/mail.module';
 import { MemoModule } from './memo/memo.module';
 import { Memo } from './memo/entities/memo.entity';
 import { MemoGroup } from './memo/entities/memo-group.entity';
+import { MemoGroupMembers } from './memo/entities/memo-group-members';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { MemoGroup } from './memo/entities/memo-group.entity';
           database: process.env.DB_DATABASE,
         }),
       synchronize: true,
-      entities: [User, Verification, MemoGroup, Memo],
+      entities: [User, Verification, MemoGroup, Memo, MemoGroupMembers],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

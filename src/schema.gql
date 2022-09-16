@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type MemoGroupMembers {
+  id: Float!
+  group: MemoGroup!
+  user: User!
+  accept: Boolean!
+}
+
 type Memo {
   id: Float!
   content: String!
@@ -14,6 +21,7 @@ type MemoGroup {
   title: String!
   user: User!
   memos: [Memo!]
+  members: [MemoGroupMembers!]
 }
 
 type User {
@@ -93,6 +101,16 @@ type MyMemosOutput {
   groups: [MemoGroup!]
 }
 
+type InviteGroupMemberOutput {
+  error: String
+  ok: Boolean!
+}
+
+type AcceptGroupMemberOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
   me: User!
   myMemos(input: MyMemosInput!): MyMemosOutput!
@@ -114,6 +132,8 @@ type Mutation {
   editMemoGroup(input: EditMemoGroupInput!): EditMemoGroupOutput!
   editMemo(input: EditMemoInput!): EditMemoOutput!
   sortMemo(input: SortMemoInput!): SortMemoOutput!
+  inviteGroupMember(input: InviteGroupMemberInput!): InviteGroupMemberOutput!
+  acceptGroupMember(input: AcceptGroupMemberInput!): AcceptGroupMemberOutput!
 }
 
 input CreateAccountInput {
@@ -176,4 +196,13 @@ input MemoType {
   content: String!
   orderby: Float!
   color: String
+}
+
+input InviteGroupMemberInput {
+  groupId: Float!
+  inviteEmail: String!
+}
+
+input AcceptGroupMemberInput {
+  id: Float!
 }

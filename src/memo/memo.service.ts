@@ -1,38 +1,44 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
-import { Like, Repository } from "typeorm";
+import { Brackets, Repository } from "typeorm";
 import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SearchMemoInput, SearchMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
+import { MemoGroupMembers } from "./entities/memo-group-members";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
 
 @Injectable()
 export class MemoService {
     constructor(
+        @InjectRepository(User)
+        private readonly users: Repository<User>, 
         @InjectRepository(MemoGroup)
         private readonly memoGroup: Repository<MemoGroup>,        
         @InjectRepository(Memo)
-        private readonly memo: Repository<Memo>
+        private readonly memo: Repository<Memo>,
+        @InjectRepository(MemoGroupMembers)
+        private readonly memoGroupMembers: Repository<MemoGroupMembers>
     ) { }
 
     async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
         try {
-            let groups = await this.memoGroup.find({
-                where: { 
-                    user: {
-                        id: user.id
-                    }
-                },
-                order: {
-                    id: "ASC",
-                    memos: {                        
-                        orderby: "ASC",
-                        id: "DESC"
-                    }
-                }
-            });
+            let groups = await this.memoGroup.createQueryBuilder("memoGroup")
+                .leftJoinAndSelect("memoGroup.memos", "memos")
+                .leftJoinAndSelect("memoGroup.members", "members")
+                .where("memoGroup.userId = (:id)", { id: user.id })
+                .orWhere(new Brackets(qb => {
+                    qb.where(" members.userId = (:id)", { id: user.id })
+                }))
+                .andWhere(new Brackets(qb => {
+                    qb.where("memos.content LIKE (:keyword)", { keyword: `%${keyword}%` })
+                }))
+                .orderBy("memos.orderby", "ASC")
+                .orderBy("memos.id", "DESC")
+                .orderBy("memoGroup.id", "ASC")
+                .getMany();
             return { ok: true, groups };
         } catch (error) {
             return { ok: false, error };
@@ -148,6 +154,59 @@ export class MemoService {
     async sortMemo({ memos }: SortMemoInput): Promise<SortMemoOutput> {
         try {
             this.memo.save(memos);
+            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async inviteGroupMember(userId: number, { groupId, inviteEmail }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
+        try {            
+            const invitedUser = await this.users.findOne({
+                where: {
+                    email: inviteEmail
+                }
+            });
+
+            const group = await this.memoGroup.findOne({
+                where: {
+                    id: groupId
+                }
+            });
+
+            const hasInvitation = await this.memoGroupMembers.findOne({
+                where: {
+                    group: {
+                        id: groupId
+                    },
+                    user: {
+                        id: invitedUser.id
+                    }
+                }
+            })
+
+            if (hasInvitation) {
+                return { ok: false, error: "Already Invited." };
+            }
+
+            await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser }));
+            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async acceptGroupMember({ id }: AcceptGroupMemberInput): Promise<AcceptGroupMemberOutput> {
+        try {
+            const member = await this.memoGroupMembers.findOneBy({ id });
+            if (!member) {
+                return { ok: false, error: "Invite member Not Found." };
+            }
+
+            member.accept = true;
+            await this.memoGroupMembers.save(member);
             
             return { ok: true };
         } catch (error) {

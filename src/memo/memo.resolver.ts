@@ -6,6 +6,7 @@ import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, E
 import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
 
 @Resolver()
 export class MeomoResolver {
@@ -68,4 +69,21 @@ export class MeomoResolver {
     sortMemo(@Args('input') sortMemoInput: SortMemoInput): Promise<SortMemoOutput> {
         return this.memoService.sortMemo(sortMemoInput);
     }
+
+    @Mutation(returns => InviteGroupMemberOutput)
+    @UseGuards(AuthGuard)
+    inviteGroupMember(
+        @AuthUser() userData,
+        @Args('input') inviteGroupMemberInput: InviteGroupMemberInput
+    ): Promise<InviteGroupMemberOutput> {
+        return this.memoService.inviteGroupMember(userData.id, inviteGroupMemberInput);
+    }
+
+    @Mutation(returns => AcceptGroupMemberOutput)
+    @UseGuards(AuthGuard)
+    acceptGroupMember(
+        @Args('input') acceptGroupMemberInput: AcceptGroupMemberInput
+    ): Promise<AcceptGroupMemberOutput> {
+        return this.memoService.acceptGroupMember(acceptGroupMemberInput);
+    }    
 }
