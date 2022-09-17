@@ -1,5 +1,5 @@
-import {UseGuards } from "@nestjs/common";
-import { Args, Query, Mutation, Resolver } from "@nestjs/graphql";
+import {Inject, UseGuards } from "@nestjs/common";
+import { Args, Query, Mutation, Resolver, Subscription } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
 import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoOutput, SortMemoInput, SearchMemoOutput, SearchMemoInput } from "./dtos/memo.dto";
@@ -7,10 +7,13 @@ import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, Dele
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
 import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
+import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
+import { PubSub } from "graphql-subscriptions";
 
 @Resolver()
 export class MeomoResolver {
     constructor(
+        @Inject(PUB_SUB) private readonly pubSub: PubSub,
         private readonly memoService: MemoService
     ) { }
 
@@ -85,5 +88,19 @@ export class MeomoResolver {
         @Args('input') acceptGroupMemberInput: AcceptGroupMemberInput
     ): Promise<AcceptGroupMemberOutput> {
         return this.memoService.acceptGroupMember(acceptGroupMemberInput);
-    }    
+    }
+
+    @UseGuards(AuthGuard)
+    @Subscription(returns => String, {
+        filter: ({ invitation: { groupId, userId } }, _, data) => {
+            console.log(data);
+            return true;
+        },
+        resolve: ({ invitation }) => {            
+            return invitation;
+        }
+    })
+    acceptInvitation() {
+        return this.pubSub.asyncIterator(ACCEPT_INVITATION);
+    }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Brackets, Repository } from "typeorm";
@@ -9,6 +9,8 @@ import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
 import { MemoGroupMembers } from "./entities/memo-group-members";
 import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
+import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
+import { PubSub } from "graphql-subscriptions";
 
 @Injectable()
 export class MemoService {
@@ -20,7 +22,9 @@ export class MemoService {
         @InjectRepository(Memo)
         private readonly memo: Repository<Memo>,
         @InjectRepository(MemoGroupMembers)
-        private readonly memoGroupMembers: Repository<MemoGroupMembers>
+        private readonly memoGroupMembers: Repository<MemoGroupMembers>,
+        @Inject(PUB_SUB)
+        private readonly pubSub: PubSub,
     ) { }
 
     async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
@@ -30,7 +34,7 @@ export class MemoService {
                 .leftJoinAndSelect("memoGroup.members", "members")
                 .where("memoGroup.userId = (:id)", { id: user.id })
                 .orWhere(new Brackets(qb => {
-                    qb.where(" members.userId = (:id)", { id: user.id })
+                    qb.where("members.userId = (:id) AND members.accept = true", { id: user.id })
                 }))
                 .andWhere(new Brackets(qb => {
                     qb.where("memos.content LIKE (:keyword)", { keyword: `%${keyword}%` })
@@ -177,30 +181,32 @@ export class MemoService {
 
             const hasInvitation = await this.memoGroupMembers.findOne({
                 where: {
-                    group: {
-                        id: groupId
-                    },
-                    user: {
-                        id: invitedUser.id
-                    }
+                    groupId,
+                    userId: invitedUser.id
                 }
             })
 
             if (hasInvitation) {
-                return { ok: false, error: "Already Invited." };
+                //return { ok: false, error: "Already Invited." };
             }
 
-            await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser }));
-            
+            const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser }));
+            await this.pubSub.publish(ACCEPT_INVITATION, {
+                invitation: {
+                    groupId: invitation.groupId,
+                    userId: invitation.userId
+                }
+            });
+
             return { ok: true };
         } catch (error) {
             return { ok: false, error };
         }
     }
 
-    async acceptGroupMember({ id }: AcceptGroupMemberInput): Promise<AcceptGroupMemberOutput> {
+    async acceptGroupMember({ groupId, userId }: AcceptGroupMemberInput): Promise<AcceptGroupMemberOutput> {
         try {
-            const member = await this.memoGroupMembers.findOneBy({ id });
+            const member = await this.memoGroupMembers.findOneBy({ groupId, userId });
             if (!member) {
                 return { ok: false, error: "Invite member Not Found." };
             }

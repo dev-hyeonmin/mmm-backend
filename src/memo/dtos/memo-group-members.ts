@@ -16,7 +16,8 @@ export class InviteGroupMemberOutput extends CoreOutput { }
 
 @InputType()
 export class AcceptGroupMemberInput extends PickType(MemoGroupMembers, [
-    'id'
+    'groupId',
+    'userId'
 ]) { }
 
 @ObjectType()

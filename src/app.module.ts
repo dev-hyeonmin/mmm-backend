@@ -16,6 +16,7 @@ import { MemoModule } from './memo/memo.module';
 import { Memo } from './memo/entities/memo.entity';
 import { MemoGroup } from './memo/entities/memo-group.entity';
 import { MemoGroupMembers } from './memo/entities/memo-group-members';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -54,11 +55,18 @@ import { MemoGroupMembers } from './memo/entities/memo-group-members';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          onConnect: (connectionParams: any) => ({
+            token: connectionParams['x-jwt'],
+          }),
+        },
+      },
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: process.env.NODE_ENV !== 'production',
-      context: ({ req }) => {
+      context: ({ req }) => (
         {token: req.headers['x-jwt']}
-      }
+      )
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
@@ -69,8 +77,9 @@ import { MemoGroupMembers } from './memo/entities/memo-group-members';
       url: process.env.SENDGRID_FROM_URL,
     }), 
     UsersModule,
+    MemoModule,
+    CommonModule,
     AuthModule,
-    MemoModule,   
   ],
   controllers: [],
   providers: [],

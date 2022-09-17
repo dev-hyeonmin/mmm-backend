@@ -3,9 +3,8 @@
 # ------------------------------------------------------
 
 type MemoGroupMembers {
-  id: Float!
-  group: MemoGroup!
-  user: User!
+  userId: Float!
+  groupId: Float!
   accept: Boolean!
 }
 
@@ -204,5 +203,10 @@ input InviteGroupMemberInput {
 }
 
 input AcceptGroupMemberInput {
-  id: Float!
+  userId: Float!
+  groupId: Float!
+}
+
+type Subscription {
+  acceptInvitation: String!
 }
