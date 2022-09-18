@@ -11,12 +11,11 @@ import { MemoGroupMembers } from "./entities/memo-group-members";
 import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
+import { UserService } from "src/users/users.service";
 
 @Injectable()
 export class MemoService {
     constructor(
-        @InjectRepository(User)
-        private readonly users: Repository<User>, 
         @InjectRepository(MemoGroup)
         private readonly memoGroup: Repository<MemoGroup>,        
         @InjectRepository(Memo)
@@ -25,6 +24,7 @@ export class MemoService {
         private readonly memoGroupMembers: Repository<MemoGroupMembers>,
         @Inject(PUB_SUB)
         private readonly pubSub: PubSub,
+        private readonly userService: UserService
     ) { }
 
     async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
@@ -167,11 +167,8 @@ export class MemoService {
 
     async inviteGroupMember(userId: number, { groupId, inviteEmail }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
         try {            
-            const invitedUser = await this.users.findOne({
-                where: {
-                    email: inviteEmail
-                }
-            });
+            const invitedUser = await this.userService.findByEmail(inviteEmail);
+            if (!invitedUser.user) { return; }
 
             const group = await this.memoGroup.findOne({
                 where: {
@@ -182,19 +179,20 @@ export class MemoService {
             const hasInvitation = await this.memoGroupMembers.findOne({
                 where: {
                     groupId,
-                    userId: invitedUser.id
+                    userId: invitedUser.user.id
                 }
             })
 
             if (hasInvitation) {
-                //return { ok: false, error: "Already Invited." };
+                return { ok: false, error: "Already Invited." };
             }
 
-            const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser }));
+            const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user }));
             await this.pubSub.publish(ACCEPT_INVITATION, {
                 invitation: {
                     groupId: invitation.groupId,
-                    userId: invitation.userId
+                    userId: invitation.userId,
+                    groupTitle: group.title
                 }
             });
 

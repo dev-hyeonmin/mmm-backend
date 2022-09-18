@@ -93,10 +93,10 @@ export class MeomoResolver {
     @UseGuards(AuthGuard)
     @Subscription(returns => String, {
         filter: ({ invitation: { groupId, userId } }, _, data) => {
-            console.log(data);
-            return true;
+            return userId === data.user.id;
         },
-        resolve: ({ invitation }) => {            
+        resolve: ({ invitation }) => {      
+            console.log(invitation);
             return invitation;
         }
     })

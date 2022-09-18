@@ -8,7 +8,7 @@ import { MeomoResolver } from './memo.resolver';
 import { MemoService } from './memo.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, MemoGroup, Memo, MemoGroupMembers])],
+    imports: [TypeOrmModule.forFeature([MemoGroup, Memo, MemoGroupMembers])],
     providers: [MeomoResolver, MemoService],
     exports: [MemoService]
 })

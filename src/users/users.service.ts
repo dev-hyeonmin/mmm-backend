@@ -38,6 +38,19 @@ export class UserService {
         }
     }
 
+    async findByEmail(email: string): Promise<UserProfileOutput> {
+        try {
+            const user = await this.users.findOneBy({email});
+            if (!user) {
+                return {ok: false, error: "User Not Found."}
+            }
+
+            return {ok: true, user};
+        } catch (error) {
+            return {ok: false, error: "User Not Found."}
+        }
+    }
+
     async createAccount({name, email, password}: CreateAccountInput): Promise<CreateAccountOutput> {
         try {
             const isExists = await this.users.findOneBy({ email });
