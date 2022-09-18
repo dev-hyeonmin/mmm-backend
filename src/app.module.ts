@@ -17,6 +17,7 @@ import { Memo } from './memo/entities/memo.entity';
 import { MemoGroup } from './memo/entities/memo-group.entity';
 import { MemoGroupMembers } from './memo/entities/memo-group-members';
 import { CommonModule } from './common/common.module';
+import { Context } from 'apollo-server-core';
 
 @Module({
   imports: [
@@ -56,17 +57,28 @@ import { CommonModule } from './common/common.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       subscriptions: {
-        'subscriptions-transport-ws': {
-          onConnect: (connectionParams: any) => ({
-            token: connectionParams['x-jwt'],
-          }),
+        'graphql-ws': {
+          onConnect: (context: Context<any>) => {
+            const { connectionParams, extra } = context;
+            extra.token = connectionParams['x-jwt'];
+          },
         },
+        // 'subscriptions-transport-ws': {
+        //   onConnect: (connectionParams: any) => ({
+        //     token: connectionParams['x-jwt'],
+        //   }),
+        // },
       },
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: process.env.NODE_ENV !== 'production',
-      context: ({ req }) => (
-        {token: req.headers['x-jwt']}
-      )
+      context: ({ req, extra }) => {
+        console.log(extra);
+        if (extra) {
+          return { token: extra.token };
+        } else {
+          return { token: req.headers['x-jwt'] };
+        }
+      },
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY

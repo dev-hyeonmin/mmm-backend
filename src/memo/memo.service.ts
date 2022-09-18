@@ -184,7 +184,7 @@ export class MemoService {
             })
 
             if (hasInvitation) {
-                return { ok: false, error: "Already Invited." };
+                //return { ok: false, error: "Already Invited." };
             }
 
             const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user }));

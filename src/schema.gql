@@ -110,6 +110,12 @@ type AcceptGroupMemberOutput {
   ok: Boolean!
 }
 
+type AcceptInvitationOutput {
+  groupId: Float!
+  userId: Float!
+  groupTitle: String!
+}
+
 type Query {
   me: User!
   myMemos(input: MyMemosInput!): MyMemosOutput!
@@ -208,5 +214,5 @@ input AcceptGroupMemberInput {
 }
 
 type Subscription {
-  acceptInvitation: String!
+  acceptInvitation: AcceptInvitationOutput!
 }

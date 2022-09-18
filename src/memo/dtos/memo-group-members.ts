@@ -22,3 +22,15 @@ export class AcceptGroupMemberInput extends PickType(MemoGroupMembers, [
 
 @ObjectType()
 export class AcceptGroupMemberOutput extends CoreOutput { }
+
+@ObjectType()
+export class AcceptInvitationOutput {
+    @Field(types => Number)
+    groupId: number;
+
+    @Field(types => Number)
+    userId: number;
+
+    @Field(types => String)
+    groupTitle: string;
+}
