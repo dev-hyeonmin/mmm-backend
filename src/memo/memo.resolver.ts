@@ -6,7 +6,7 @@ import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, E
 import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
-import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 
@@ -90,13 +90,19 @@ export class MeomoResolver {
         return this.memoService.acceptGroupMember(acceptGroupMemberInput);
     }
 
+    @Query(returns => MyInvitationOutput)
+    @UseGuards(AuthGuard)
+    myInvitation( @AuthUser() userData ): Promise<MyInvitationOutput> {
+        return this.memoService.myInvitation(userData);
+    }
+
     @UseGuards(AuthGuard)
     @Subscription(returns => AcceptInvitationOutput, {
-        filter: ({ invitation: { userId } }, _, data) => {
-            //return userId === data.user.id;
-            return true;
+        filter: ({invitation}, _, data) => {
+            return invitation.userId === data.user.id;
+            //return true;
         },
-        resolve: ({ invitation }) => invitation
+        resolve: (invitation) => invitation
     })
     acceptInvitation() {
         return this.pubSub.asyncIterator(ACCEPT_INVITATION);

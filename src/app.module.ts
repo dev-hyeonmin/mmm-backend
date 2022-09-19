@@ -72,7 +72,6 @@ import { Context } from 'apollo-server-core';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: process.env.NODE_ENV !== 'production',
       context: ({ req, extra }) => {
-        console.log(extra);
         if (extra) {
           return { token: extra.token };
         } else {

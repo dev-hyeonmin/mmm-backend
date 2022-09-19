@@ -8,7 +8,7 @@ import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
 import { MemoGroupMembers } from "./entities/memo-group-members";
-import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput } from "./dtos/memo-group-members";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 import { UserService } from "src/users/users.service";
@@ -189,11 +189,7 @@ export class MemoService {
 
             const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user }));
             await this.pubSub.publish(ACCEPT_INVITATION, {
-                invitation: {
-                    groupId: invitation.groupId,
-                    userId: invitation.userId,
-                    groupTitle: group.title
-                }
+                invitation : invitation
             });
 
             return { ok: true };
@@ -202,15 +198,39 @@ export class MemoService {
         }
     }
 
-    async acceptGroupMember({ groupId, userId }: AcceptGroupMemberInput): Promise<AcceptGroupMemberOutput> {
+    async myInvitation({ id }: User): Promise<MyInvitationOutput> {
         try {
-            const member = await this.memoGroupMembers.findOneBy({ groupId, userId });
-            if (!member) {
+            const invitations = await this.memoGroupMembers.find({
+                relations: ['group.user'],
+                where: {
+                    userId: id,
+                    accept: false
+                }
+            });
+
+            return { ok: true, invitations };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async acceptGroupMember({ groupId, userId, accept }: AcceptGroupMemberInput): Promise<AcceptGroupMemberOutput> {
+        try {
+            const invitation = await this.memoGroupMembers.findOneBy({ groupId, userId });
+            if (!invitation) {
                 return { ok: false, error: "Invite member Not Found." };
             }
 
-            member.accept = true;
-            await this.memoGroupMembers.save(member);
+            if (accept) {
+                invitation.accept = accept;
+                await this.memoGroupMembers.save(invitation);
+            } else {
+                await this.memoGroupMembers.delete({ userId, groupId });
+            }
+
+            await this.pubSub.publish(ACCEPT_INVITATION, {
+                invitation : invitation
+            });
             
             return { ok: true };
         } catch (error) {

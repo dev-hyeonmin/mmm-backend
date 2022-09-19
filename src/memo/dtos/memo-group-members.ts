@@ -12,12 +12,13 @@ export class InviteGroupMemberInput {
 }
 
 @ObjectType()
-export class InviteGroupMemberOutput extends CoreOutput { }
+export class InviteGroupMemberOutput extends CoreOutput {}
 
 @InputType()
 export class AcceptGroupMemberInput extends PickType(MemoGroupMembers, [
     'groupId',
-    'userId'
+    'userId',
+    'accept'
 ]) { }
 
 @ObjectType()
@@ -25,12 +26,12 @@ export class AcceptGroupMemberOutput extends CoreOutput { }
 
 @ObjectType()
 export class AcceptInvitationOutput {
-    @Field(types => Number)
-    groupId: number;
+    @Field(types => MemoGroupMembers)
+    invitation: MemoGroupMembers;
+}
 
-    @Field(types => Number)
-    userId: number;
-
-    @Field(types => String)
-    groupTitle: string;
+@ObjectType()
+export class MyInvitationOutput extends CoreOutput {
+    @Field(types => [MemoGroupMembers], { nullable: true })
+    invitations?: MemoGroupMembers[];
 }
