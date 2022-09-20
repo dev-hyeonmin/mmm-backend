@@ -4,6 +4,7 @@
 
 type MemoGroupMembers {
   userId: Float!
+  user: User!
   groupId: Float!
   group: MemoGroup!
   accept: Boolean!

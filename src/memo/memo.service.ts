@@ -32,6 +32,7 @@ export class MemoService {
             let groups = await this.memoGroup.createQueryBuilder("memoGroup")
                 .leftJoinAndSelect("memoGroup.memos", "memos")
                 .leftJoinAndSelect("memoGroup.members", "members")
+                .leftJoinAndSelect("members.user", "membersName")
                 .where("memoGroup.userId = (:id)", { id: user.id })
                 .orWhere(new Brackets(qb => {
                     qb.where("members.userId = (:id) AND members.accept = true", { id: user.id })

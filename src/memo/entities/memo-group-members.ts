@@ -12,6 +12,7 @@ export class MemoGroupMembers {
     @PrimaryColumn() 
     userId: number;
 
+    @Field(types => User)
     @ManyToOne(
         () => User,
         (user) => user.id,
