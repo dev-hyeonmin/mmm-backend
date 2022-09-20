@@ -6,7 +6,7 @@ import { CreateMemoInput, CreateMemoOutput, DeleteMemoInput, DeleteMemoOutput, E
 import { CreateMemoGroupInput, CreateMemoGroupOutput, DeleteMemoGroupInput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoService } from "./memo.service";
-import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, DeleteGroupMemberInput, DeleteGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 
@@ -38,9 +38,10 @@ export class MeomoResolver {
     @Mutation(returns => CreateMemoOutput)
     @UseGuards(AuthGuard)
     createMemo(
+        @AuthUser() userData,
         @Args('input') CreateMemoInput: CreateMemoInput
     ): Promise<CreateMemoOutput> {
-        return this.memoService.createMemo(CreateMemoInput);
+        return this.memoService.createMemo(userData.id, CreateMemoInput);
     }
 
     @Mutation(returns => DeleteMemoGroupOutput)
@@ -57,14 +58,20 @@ export class MeomoResolver {
 
     @Mutation(returns => EditMemoGroupOutput)
     @UseGuards(AuthGuard)
-    editMemoGroup(@Args('input') editMemoGroupInput: EditMemoGroupInput): Promise<EditMemoGroupOutput> {
-        return this.memoService.editMemoGroup(editMemoGroupInput);
+    editMemoGroup(
+        @AuthUser() userData,
+        @Args('input') editMemoGroupInput: EditMemoGroupInput
+    ): Promise<EditMemoGroupOutput> {
+        return this.memoService.editMemoGroup(userData.id, editMemoGroupInput);
     }
 
     @Mutation(returns => EditMemoOutput)
     @UseGuards(AuthGuard)
-    editMemo(@Args('input') editMemoInput: EditMemoInput): Promise<EditMemoOutput> {
-        return this.memoService.editMemo(editMemoInput);
+    editMemo(
+        @AuthUser() userData,
+        @Args('input') editMemoInput: EditMemoInput
+    ): Promise<EditMemoOutput> {
+        return this.memoService.editMemo(userData.id, editMemoInput);
     }
 
     @Mutation(returns => SortMemoOutput)
@@ -89,6 +96,14 @@ export class MeomoResolver {
         return this.memoService.acceptGroupMember(acceptGroupMemberInput);
     }
 
+    @Mutation(returns => DeleteGroupMemberOutput)
+    @UseGuards(AuthGuard)
+    deleteGroupMember(
+        @Args('input') deleteGroupMemberInput: DeleteGroupMemberInput
+    ): Promise<DeleteGroupMemberOutput> {
+        return this.memoService.deleteGroupMember(deleteGroupMemberInput);
+    }
+
     @Query(returns => MyInvitationOutput)
     @UseGuards(AuthGuard)
     myInvitation( @AuthUser() userData ): Promise<MyInvitationOutput> {
@@ -99,7 +114,6 @@ export class MeomoResolver {
     @Subscription(returns => AcceptInvitationOutput, {
         filter: ({invitation}, _, data) => {
             return invitation.userId === data.user.id;
-            //return true;
         },
         resolve: (invitation) => invitation
     })

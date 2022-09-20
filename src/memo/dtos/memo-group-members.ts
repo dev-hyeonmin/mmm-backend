@@ -7,9 +7,6 @@ export class InviteGroupMemberInput extends PickType(MemoGroupMembers, [
     'groupId',
     'useType'
 ]){
-    // @Field(type => Number)
-    // groupId: number;
-
     @Field(type => String)
     inviteEmail: string;
 }
@@ -38,3 +35,12 @@ export class MyInvitationOutput extends CoreOutput {
     @Field(types => [MemoGroupMembers], { nullable: true })
     invitations?: MemoGroupMembers[];
 }
+
+@InputType()
+export class DeleteGroupMemberInput extends PickType(MemoGroupMembers, [
+    'groupId',
+    'userId'
+]){}
+
+@ObjectType()
+export class DeleteGroupMemberOutput extends CoreOutput {}

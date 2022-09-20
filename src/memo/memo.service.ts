@@ -7,8 +7,8 @@ import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditM
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
 import { Memo } from "./entities/memo.entity";
-import { MemoGroupMembers } from "./entities/memo-group-members";
-import { AcceptGroupMemberInput, AcceptGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
+import { MemoGroupMembers, UseType } from "./entities/memo-group-members";
+import { AcceptGroupMemberInput, AcceptGroupMemberOutput, DeleteGroupMemberInput, DeleteGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 import { UserService } from "src/users/users.service";
@@ -50,7 +50,7 @@ export class MemoService {
             return { ok: false, error };
         }
     }
-
+    
     async createMemoGroup(user: User, title: string): Promise<CreateMemoGroupOutput> {
         try {
             await this.memoGroup.save(this.memoGroup.create({ title, user }));
@@ -60,8 +60,13 @@ export class MemoService {
         }
     }
 
-    async createMemo({content, groupId}: CreateMemoInput): Promise<CreateMemoOutput> {
+    async createMemo(userId: number, {content, groupId}: CreateMemoInput): Promise<CreateMemoOutput> {
         try {
+            const checkPermission = await this.checkPermission(groupId, userId);
+            if (!checkPermission) {
+                return { ok: false, error: "Permission denied." };
+            }
+
             const group = await this.memoGroup.findOneBy({ id: groupId });
             if (!group) {
                 return { ok: false, error: "Group Not Found." };
@@ -102,8 +107,13 @@ export class MemoService {
         }
     }
 
-    async editMemoGroup({id, title}: EditMemoGroupInput): Promise<EditMemoGroupOutput> {
+    async editMemoGroup(userId: number, {id, title}: EditMemoGroupInput): Promise<EditMemoGroupOutput> {
         try {
+            const checkPermission = await this.checkPermission(id, userId);
+            if (!checkPermission) {
+                return { ok: false, error: "Permission denied." };
+            }
+
             const group = await this.memoGroup.findOneBy({ id });
             if (!group) {
                 return { ok: false, error: "Group Not Found." };
@@ -122,8 +132,13 @@ export class MemoService {
         }
     }
 
-    async editMemo({id, content, orderby, groupId, color}: EditMemoInput): Promise<EditMemoOutput> {
+    async editMemo(userId: number, {id, content, orderby, groupId, color}: EditMemoInput): Promise<EditMemoOutput> {
         try {
+            const checkPermission = await this.checkPermission(groupId, userId);
+            if (!checkPermission) {
+                return { ok: false, error: "Permission denied." };
+            }
+
             if (!id) {
                 return { ok: false, error: "id is required." };
             }
@@ -239,6 +254,46 @@ export class MemoService {
             return { ok: true };
         } catch (error) {
             return { ok: false, error };
+        }
+    }
+
+    async deleteGroupMember({ groupId, userId }: DeleteGroupMemberInput): Promise<DeleteGroupMemberOutput> {
+        try {
+            const invitation = await this.memoGroupMembers.findOneBy({ groupId, userId });
+            if (!invitation) {
+                return { ok: false, error: "Invite member Not Found." };
+            }
+
+            await this.memoGroupMembers.delete({ groupId, userId });
+            
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async checkPermission(groupId: number, userId: number):Promise<Boolean> {
+        try {
+            let group = await this.memoGroup.createQueryBuilder("memoGroup")
+                .leftJoinAndSelect("memoGroup.user", "user")
+                .leftJoinAndSelect("memoGroup.members", "members")
+                .leftJoinAndSelect("members.user", "membersName")
+                .where("memoGroup.id = (:id)", { id: groupId})
+                .getOne();
+            
+            if (group.user.id === userId) {
+                return true;
+            } else {
+                const memberInfo = group.members.find((member) => member.user.id === userId);
+                if (memberInfo.useType === UseType.Editor) {                
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (error) {
+            console.log(error);
+            return false;
         }
     }
 }
