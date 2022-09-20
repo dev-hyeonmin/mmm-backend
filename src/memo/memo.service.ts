@@ -41,9 +41,11 @@ export class MemoService {
                 .andWhere(new Brackets(qb => {
                     qb.where("memos.content LIKE (:keyword)", { keyword: `%${keyword}%` })
                 }))
-                .orderBy("memos.orderby", "ASC")
-                .orderBy("memos.id", "DESC")
-                .orderBy("memoGroup.id", "ASC")
+                .orderBy({
+                    "memos.orderby": "ASC",
+                    "memos.id": "DESC",
+                    "memoGroup.id": "ASC"
+                })
                 .getMany();
             return { ok: true, groups };
         } catch (error) {
@@ -134,11 +136,6 @@ export class MemoService {
 
     async editMemo(userId: number, {id, content, orderby, groupId, color}: EditMemoInput): Promise<EditMemoOutput> {
         try {
-            const checkPermission = await this.checkPermission(groupId, userId);
-            if (!checkPermission) {
-                return { ok: false, error: "Permission denied." };
-            }
-
             if (!id) {
                 return { ok: false, error: "id is required." };
             }
@@ -146,6 +143,11 @@ export class MemoService {
             const memo = await this.memo.findOneBy({ id });
             if (!memo) {
                 return { ok: false, error: "Memo Not Found." };
+            }
+
+            const checkPermission = await this.checkPermission(memo.groupId, userId);
+            if (!checkPermission) {
+                return { ok: false, error: "Permission denied." };
             }
             
             if (content) {
