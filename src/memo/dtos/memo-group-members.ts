@@ -3,9 +3,12 @@ import { CoreOutput } from "src/common/dtos/output.dto";
 import { MemoGroupMembers } from "../entities/memo-group-members";
 
 @InputType()
-export class InviteGroupMemberInput {
-    @Field(type => Number)
-    groupId: number;
+export class InviteGroupMemberInput extends PickType(MemoGroupMembers, [
+    'groupId',
+    'useType'
+]){
+    // @Field(type => Number)
+    // groupId: number;
 
     @Field(type => String)
     inviteEmail: string;
@@ -18,7 +21,7 @@ export class InviteGroupMemberOutput extends CoreOutput {}
 export class AcceptGroupMemberInput extends PickType(MemoGroupMembers, [
     'groupId',
     'userId',
-    'accept'
+    'accept',    
 ]) { }
 
 @ObjectType()

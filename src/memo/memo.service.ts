@@ -31,6 +31,7 @@ export class MemoService {
         try {
             let groups = await this.memoGroup.createQueryBuilder("memoGroup")
                 .leftJoinAndSelect("memoGroup.memos", "memos")
+                .leftJoinAndSelect("memoGroup.user", "user")
                 .leftJoinAndSelect("memoGroup.members", "members")
                 .leftJoinAndSelect("members.user", "membersName")
                 .where("memoGroup.userId = (:id)", { id: user.id })
@@ -166,7 +167,7 @@ export class MemoService {
         }
     }
 
-    async inviteGroupMember({ groupId, inviteEmail }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
+    async inviteGroupMember({ groupId, inviteEmail, useType }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
         try {            
             const invitedUser = await this.userService.findByEmail(inviteEmail);
             if (!invitedUser.user) {
@@ -182,7 +183,7 @@ export class MemoService {
             const hasInvitation = await this.memoGroupMembers.findOne({
                 where: {
                     groupId,
-                    userId: invitedUser.user.id
+                    userId: invitedUser.user.id,                    
                 }
             })
 
@@ -190,7 +191,7 @@ export class MemoService {
                 return { ok: false, error: "Already Invited." };
             }
 
-            const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user }));
+            const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user, useType }));
             await this.pubSub.publish(ACCEPT_INVITATION, {
                 invitation : invitation
             });

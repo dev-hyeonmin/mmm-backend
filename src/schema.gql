@@ -8,6 +8,12 @@ type MemoGroupMembers {
   groupId: Float!
   group: MemoGroup!
   accept: Boolean!
+  useType: UseType!
+}
+
+enum UseType {
+  Viewer
+  Editor
 }
 
 type Memo {
@@ -212,6 +218,7 @@ input MemoType {
 
 input InviteGroupMemberInput {
   groupId: Float!
+  useType: UseType!
   inviteEmail: String!
 }
 

@@ -1,8 +1,15 @@
-import { Field, InputType, ObjectType } from "@nestjs/graphql";
+import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
+import { IsEnum } from "class-validator";
 import { CoreEntity } from "src/common/core.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
 import { MemoGroup } from "./memo-group.entity";
+
+export enum UseType {
+    Viewer = 'Viewer',
+    Editor = 'Editor',
+}
+registerEnumType(UseType, { name: 'UseType' });
 
 @InputType("MemoGroupMemberType", { isAbstract: true })
 @ObjectType()
@@ -38,4 +45,9 @@ export class MemoGroupMembers {
     @Field(types => Boolean)
     @Column({default: false})
     accept: boolean;
+
+    @Column({ type: 'enum', enum: UseType })
+    @Field(type => UseType)
+    @IsEnum(UseType)
+    useType: UseType;
 }
