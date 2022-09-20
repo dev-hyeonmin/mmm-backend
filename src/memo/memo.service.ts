@@ -165,10 +165,12 @@ export class MemoService {
         }
     }
 
-    async inviteGroupMember(userId: number, { groupId, inviteEmail }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
+    async inviteGroupMember({ groupId, inviteEmail }: InviteGroupMemberInput): Promise<InviteGroupMemberOutput> {
         try {            
             const invitedUser = await this.userService.findByEmail(inviteEmail);
-            if (!invitedUser.user) { return; }
+            if (!invitedUser.user) {
+                return { ok: false, error: "User Not Found." };
+            }
 
             const group = await this.memoGroup.findOne({
                 where: {
@@ -184,7 +186,7 @@ export class MemoService {
             })
 
             if (hasInvitation) {
-                //return { ok: false, error: "Already Invited." };
+                return { ok: false, error: "Already Invited." };
             }
 
             const invitation = await this.memoGroupMembers.save(this.memoGroupMembers.create({ group, user: invitedUser.user }));
@@ -228,9 +230,9 @@ export class MemoService {
                 await this.memoGroupMembers.delete({ userId, groupId });
             }
 
-            await this.pubSub.publish(ACCEPT_INVITATION, {
-                invitation : invitation
-            });
+            // await this.pubSub.publish(ACCEPT_INVITATION, {
+            //     invitation : invitation
+            // });
             
             return { ok: true };
         } catch (error) {

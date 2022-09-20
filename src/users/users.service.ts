@@ -83,10 +83,15 @@ export class UserService {
                 user.email = email;
             }
             if (password) {
-                user.password = password;
+                await this.users.update(user.id, {
+                    password: password
+                });
             }
 
-            await this.users.save(user);
+            await this.users.update(user.id, {
+                name: user.name,
+                email: user.email
+            });
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

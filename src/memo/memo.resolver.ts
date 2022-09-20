@@ -76,10 +76,9 @@ export class MeomoResolver {
     @Mutation(returns => InviteGroupMemberOutput)
     @UseGuards(AuthGuard)
     inviteGroupMember(
-        @AuthUser() userData,
         @Args('input') inviteGroupMemberInput: InviteGroupMemberInput
     ): Promise<InviteGroupMemberOutput> {
-        return this.memoService.inviteGroupMember(userData.id, inviteGroupMemberInput);
+        return this.memoService.inviteGroupMember(inviteGroupMemberInput);
     }
 
     @Mutation(returns => AcceptGroupMemberOutput)
