@@ -21,6 +21,10 @@ export class User extends CoreEntity {
     @Field(type => String)
     password: string;
 
+    @Column({ nullable: true })
+    @Field(type => String, {nullable: true})
+    userImage?: string;
+
     @Column({ default: false })
     @Field(type => Boolean)
     verified: boolean;

@@ -69,7 +69,7 @@ export class UserService {
         }
     }
 
-    async editProfile(id: number, {name, email, password}: EditProfileInput):Promise<EditProfileOutput> {
+    async editProfile(id: number, {name, email, password, userImage}: EditProfileInput):Promise<EditProfileOutput> {
         try {
             const user = await this.users.findOneBy({ id });
             if (!user) {
@@ -82,6 +82,9 @@ export class UserService {
             if (email) {
                 user.email = email;
             }
+            if (userImage) {
+                user.userImage = userImage;
+            }
             if (password) {
                 await this.users.update(user.id, {
                     password: password
@@ -90,7 +93,8 @@ export class UserService {
 
             await this.users.update(user.id, {
                 name: user.name,
-                email: user.email
+                email: user.email,
+                userImage: user.userImage
             });
             return { ok: true };
         } catch (error) {

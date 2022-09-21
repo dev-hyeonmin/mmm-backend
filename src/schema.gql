@@ -36,6 +36,7 @@ type User {
   name: String!
   email: String!
   password: String!
+  userImage: String
   verified: Boolean!
   lastLogin: DateTime!
 }
@@ -170,6 +171,7 @@ input EditProfileInput {
   name: String
   email: String
   password: String
+  userImage: String
 }
 
 input LoginInput {

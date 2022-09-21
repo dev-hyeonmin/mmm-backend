@@ -8,6 +8,7 @@ export class EditProfileInput extends PartialType(
         'name',
         'email',
         'password',
+        'userImage'
     ])
 ) {}
 

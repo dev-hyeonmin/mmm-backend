@@ -18,6 +18,7 @@ import { MemoGroup } from './memo/entities/memo-group.entity';
 import { MemoGroupMembers } from './memo/entities/memo-group-members';
 import { CommonModule } from './common/common.module';
 import { Context } from 'apollo-server-core';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -54,31 +55,31 @@ import { Context } from 'apollo-server-core';
       synchronize: true,
       entities: [User, Verification, MemoGroup, Memo, MemoGroupMembers],
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      subscriptions: {
-        'graphql-ws': {
-          onConnect: (context: Context<any>) => {
-            const { connectionParams, extra } = context;
-            extra.token = connectionParams['x-jwt'];
+      GraphQLModule.forRoot<ApolloDriverConfig>({
+        driver: ApolloDriver,
+        subscriptions: {
+          'graphql-ws': {
+            onConnect: (context: Context<any>) => {
+              const { connectionParams, extra } = context;
+              extra.token = connectionParams['x-jwt'];
+            },
           },
+          // 'subscriptions-transport-ws': {
+          //   onConnect: (connectionParams: any) => ({
+          //     token: connectionParams['x-jwt'],
+          //   }),
+          // },
         },
-        // 'subscriptions-transport-ws': {
-        //   onConnect: (connectionParams: any) => ({
-        //     token: connectionParams['x-jwt'],
-        //   }),
-        // },
-      },
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      playground: process.env.NODE_ENV !== 'production',
-      context: ({ req, extra }) => {
-        if (extra) {
-          return { token: extra.token };
-        } else {
-          return { token: req.headers['x-jwt'] };
-        }
-      },
-    }),
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        playground: process.env.NODE_ENV !== 'production',
+        context: ({ req, extra }) => {
+          if (extra) {
+            return { token: extra.token };
+          } else {
+            return { token: req.headers['x-jwt'] };
+          }
+        },
+      }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
     }),
@@ -91,6 +92,7 @@ import { Context } from 'apollo-server-core';
     MemoModule,
     CommonModule,
     AuthModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
