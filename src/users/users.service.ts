@@ -13,6 +13,8 @@ import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
 import { Verification } from "./entities/verification.entity";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { MailService } from "src/mail/mail.service";
+import { UploadsController } from "src/uploads/uploads.controller";
+import { UploadsService } from "src/uploads/uploads.service";
 
 @Injectable()
 export class UserService {
@@ -22,7 +24,8 @@ export class UserService {
         @InjectRepository(Verification)
         private readonly verification: Repository<Verification>,
         private readonly jwtService: JwtService,
-        private readonly mailService: MailService
+        private readonly mailService: MailService,
+        private readonly uploadsService: UploadsService
     ) { }
 
     async findById(id: number): Promise<UserProfileOutput> {
@@ -83,6 +86,9 @@ export class UserService {
                 user.email = email;
             }
             if (userImage) {
+                if (user.userImage) {
+                    await this.uploadsService.delete(user.userImage);
+                }
                 user.userImage = userImage;
             }
             if (password) {
