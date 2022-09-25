@@ -54,6 +54,7 @@ import { UploadsModule } from './uploads/uploads.module';
         }),
       synchronize: true,
       entities: [User, Verification, MemoGroup, Memo, MemoGroupMembers],
+      logging: true
     }),
       GraphQLModule.forRoot<ApolloDriverConfig>({
         driver: ApolloDriver,

@@ -30,23 +30,19 @@ export class MemoService {
     async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
         try {
             let groups = await this.memoGroup.createQueryBuilder("memoGroup")
-                .leftJoinAndSelect("memoGroup.memos", "memos")
+                .leftJoinAndSelect("memoGroup.memos", "memos", "memos.content LIKE :keyword", {keyword: `%${keyword}%`})
                 .leftJoinAndSelect("memoGroup.user", "user")
                 .leftJoinAndSelect("memoGroup.members", "members")
                 .leftJoinAndSelect("members.user", "membersName")
-                .where("memoGroup.userId = (:id)", { id: user.id })
-                .orWhere(new Brackets(qb => {
-                    qb.where("members.userId = (:id) AND members.accept = true", { id: user.id })
-                }))
-                .andWhere(new Brackets(qb => {
-                    qb.where("memos.content LIKE (:keyword)", { keyword: `%${keyword}%` })
-                }))
+                .where("user.id = (:id) OR members.userId = :id", { id: user.id })
+                .orWhere("members.accept = true")
                 .orderBy({
                     "memos.orderby": "ASC",
                     "memos.id": "DESC",
                     "memoGroup.id": "ASC"
                 })
                 .getMany();
+            
             return { ok: true, groups };
         } catch (error) {
             return { ok: false, error };
