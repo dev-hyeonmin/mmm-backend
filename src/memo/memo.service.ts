@@ -37,9 +37,9 @@ export class MemoService {
                 .where("user.id = (:id) OR members.userId = :id", { id: user.id })
                 .orWhere("members.accept = true")
                 .orderBy({
+                    "memoGroup.id": "ASC",
                     "memos.orderby": "ASC",
                     "memos.id": "DESC",
-                    "memoGroup.id": "ASC"
                 })
                 .getMany();
             
