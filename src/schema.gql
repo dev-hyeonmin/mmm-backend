@@ -18,13 +18,20 @@ enum UseType {
 
 type Memo {
   id: Float!
+  updateAt: DateTime!
   content: String!
   orderby: Float!
   color: String
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type MemoGroup {
   id: Float!
+  updateAt: DateTime!
   title: String!
   user: User!
   memos: [Memo!]
@@ -33,6 +40,7 @@ type MemoGroup {
 
 type User {
   id: Float!
+  updateAt: DateTime!
   name: String!
   email: String!
   password: String!
@@ -40,11 +48,6 @@ type User {
   verified: Boolean!
   lastLogin: DateTime!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type CreateAccountOutput {
   error: String
@@ -219,6 +222,7 @@ input SortMemoInput {
 
 input MemoType {
   id: Float!
+  updateAt: DateTime!
   content: String!
   orderby: Float!
   color: String

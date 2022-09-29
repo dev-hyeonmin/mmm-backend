@@ -253,9 +253,9 @@ export class MemoService {
                 await this.memoGroupMembers.delete({ userId, groupId });
             }
 
-            // await this.pubSub.publish(ACCEPT_INVITATION, {
-            //     invitation : invitation
-            // });
+            await this.pubSub.publish(ACCEPT_INVITATION, {
+                invitation : invitation
+            });
             
             return { ok: true };
         } catch (error) {
