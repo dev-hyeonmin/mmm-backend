@@ -79,6 +79,7 @@ import { UploadsModule } from './uploads/uploads.module';
             return { token: req.headers['x-jwt'] };
           }
         },
+        cache: "bounded"
       }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY
