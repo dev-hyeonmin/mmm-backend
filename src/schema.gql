@@ -22,12 +22,20 @@ type Tags {
   name: String!
 }
 
+type MemoTags {
+  memoId: Float!
+  memo: Memo!
+  tagId: Float!
+  tag: Tags!
+}
+
 type Memo {
   id: Float!
   updateAt: DateTime!
   content: String!
   orderby: Float!
   color: String
+  tags: [MemoTags!]
 }
 
 """
@@ -150,7 +158,17 @@ type AddTagsOutput {
   id: Float
 }
 
+type DeleteTagOutput {
+  error: String
+  ok: Boolean!
+}
+
 type AddMemoTagOutput {
+  error: String
+  ok: Boolean!
+}
+
+type DeleteMemoTagOutput {
   error: String
   ok: Boolean!
 }
@@ -181,7 +199,9 @@ type Mutation {
   acceptGroupMember(input: AcceptGroupMemberInput!): AcceptGroupMemberOutput!
   deleteGroupMember(input: DeleteGroupMemberInput!): DeleteGroupMemberOutput!
   addTags(input: AddTagsInput!): AddTagsOutput!
+  deleteTags(input: DeleteTagInput!): DeleteTagOutput!
   addMemoTags(input: AddMemoTagInput!): AddMemoTagOutput!
+  deleteMemoTags(input: DeleteMemoTagInput!): DeleteMemoTagOutput!
 }
 
 input CreateAccountInput {
@@ -246,6 +266,20 @@ input MemoType {
   content: String!
   orderby: Float!
   color: String
+  tags: [MemoTagsType!]
+}
+
+input MemoTagsType {
+  memoId: Float!
+  memo: MemoType!
+  tagId: Float!
+  tag: TagsType!
+}
+
+input TagsType {
+  id: Float!
+  groupId: Float!
+  name: String!
 }
 
 input InviteGroupMemberInput {
@@ -270,7 +304,17 @@ input AddTagsInput {
   name: String!
 }
 
+input DeleteTagInput {
+  id: Float!
+}
+
 input AddMemoTagInput {
+  memoId: Float!
+  tagId: Float!
+  name: String!
+}
+
+input DeleteMemoTagInput {
   memoId: Float!
   tagId: Float!
 }

@@ -9,7 +9,7 @@ import { MemoService } from "./memo.service";
 import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, DeleteGroupMemberInput, DeleteGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
-import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput } from "./dtos/tags.dto";
+import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput, DeleteMemoTagInput, DeleteMemoTagOutput, DeleteTagInput, DeleteTagOutput } from "./dtos/tags.dto";
 
 @Resolver()
 export class MeomoResolver {
@@ -132,8 +132,20 @@ export class MeomoResolver {
     }
 
     @UseGuards(AuthGuard)
+    @Mutation(returns => DeleteTagOutput)
+    deleteTags(@Args('input') deleteTagInput: DeleteTagInput): Promise<DeleteTagOutput> {
+        return this.memoService.deleteTags(deleteTagInput);
+    }
+
+    @UseGuards(AuthGuard)
     @Mutation(returns => AddMemoTagOutput)
     addMemoTags(@Args('input') addMemoTagInput: AddMemoTagInput): Promise<AddMemoTagOutput> {
         return this.memoService.addMemoTags(addMemoTagInput);
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation(returns => DeleteMemoTagOutput)
+    deleteMemoTags(@Args('input') deleteMemoTagInput: DeleteMemoTagInput): Promise<DeleteMemoTagOutput> {
+        return this.memoService.deleteMemoTags(deleteMemoTagInput);
     }
 }

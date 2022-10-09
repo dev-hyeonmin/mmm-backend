@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/core.entity";
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { MemoGroup } from "./memo-group.entity";
 import { MemoTags } from "./memo-tags";
 import { Tags } from "./tags";
@@ -27,10 +27,11 @@ export class Memo extends CoreEntity {
     @ManyToOne(() => MemoGroup, (memoGroup) => memoGroup.memos, { onDelete: 'CASCADE' })
     group: MemoGroup;
 
+    @Field(types => [MemoTags], { nullable: true })
     @OneToMany(
         () => MemoTags,
         (tag) => tag.memo,
-        { onDelete: "CASCADE" }
+        { onDelete: "CASCADE"}
     )
-    tags: Tags[];
+    tags?: MemoTags[];
 }

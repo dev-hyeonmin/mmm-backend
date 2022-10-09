@@ -29,6 +29,5 @@ export class MemoTags {
         (tag) => tag.tags,
         { onDelete: "CASCADE", eager: true},
     )
-    @JoinColumn({ name: "tagId" })
     tag: Tags;
 }

@@ -36,9 +36,8 @@ export class MemoGroupMembers {
     @ManyToOne(
         () => MemoGroup,
         (group) => group.members,
-        { onDelete: "CASCADE", eager: true},
+        { onDelete: "CASCADE"},
     )
-    @JoinColumn({ name: "groupId" })
     group: MemoGroup;
            
            

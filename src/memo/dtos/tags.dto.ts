@@ -16,10 +16,30 @@ export class AddTagsOutput extends CoreOutput {
 }
 
 @InputType()
+export class DeleteTagInput extends PickType(Tags, [
+    'id'
+]) {}
+
+@ObjectType()
+export class DeleteTagOutput extends CoreOutput { }
+
+@InputType()
 export class AddMemoTagInput extends PickType(MemoTags, [
+    'memoId',
+    'tagId'
+]) {
+    @Field(types => String)
+    name: string;
+}
+
+@ObjectType()
+export class AddMemoTagOutput extends CoreOutput { }
+
+@InputType()
+export class DeleteMemoTagInput extends PickType(MemoTags, [
     'memoId',
     'tagId'
 ]) {}
 
 @ObjectType()
-export class AddMemoTagOutput extends CoreOutput {}
+export class DeleteMemoTagOutput extends CoreOutput {}

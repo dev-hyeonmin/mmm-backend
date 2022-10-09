@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Brackets, Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SearchMemoInput, SearchMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
@@ -12,7 +12,7 @@ import { AcceptGroupMemberInput, AcceptGroupMemberOutput, DeleteGroupMemberInput
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 import { UserService } from "src/users/users.service";
-import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput } from "./dtos/tags.dto";
+import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput, DeleteMemoTagInput, DeleteMemoTagOutput, DeleteTagInput, DeleteTagOutput } from "./dtos/tags.dto";
 import { MemoTags } from "./entities/memo-tags";
 import { Tags } from "./entities/tags";
 
@@ -37,7 +37,9 @@ export class MemoService {
     async myMemos(user: User, { keyword }: MyMemosInput): Promise<MyMemosOutput> {
         try {
             let groups = await this.memoGroup.createQueryBuilder("memoGroup")
-                .leftJoinAndSelect("memoGroup.memos", "memos", "memos.content LIKE :keyword", {keyword: `%${keyword}%`})
+                .leftJoinAndSelect("memoGroup.memos", "memos", "memos.content LIKE :keyword", { keyword: `%${keyword}%` })
+                .leftJoinAndSelect("memos.tags", "tags")
+                .leftJoinAndSelect("tags.tag", "tag")
                 .leftJoinAndSelect("memoGroup.user", "user")
                 .leftJoinAndSelect("memoGroup.members", "members", "members.accept = true")
                 .leftJoinAndSelect("members.user", "membersName")
@@ -329,14 +331,27 @@ export class MemoService {
 
             return { ok: true, id: newTag.id };
         } catch (error) {
-            return {ok: false, error}
+            return { ok: false, error };
         }
     }
 
-    async addMemoTags({memoId, tagId}: AddMemoTagInput): Promise<AddMemoTagOutput> {
+    async deleteTags({ id }: DeleteTagInput): Promise<DeleteTagOutput> {        
         try {
-            const tag = await this.memoTags.findOneBy({ memoId, tagId });
+            await this.tags.delete({ id });
 
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
+    async addMemoTags({memoId, tagId, name}: AddMemoTagInput): Promise<AddMemoTagOutput> {
+        try {
+            const memoGroup = await this.memo.findOneBy({ id: memoId });
+            const groupId = memoGroup.groupId;
+            const tagId = (await this.addTags({ groupId, name })).id;
+
+            const tag = await this.memoTags.findOneBy({ memoId, tagId });
             if (tag) {
                 return {ok: false, error: "Already exist."}
             }
@@ -345,7 +360,17 @@ export class MemoService {
 
             return { ok: true };
         } catch (error) {
-            return {ok: false, error}
+            return { ok: false, error };
+        }
+    }
+
+    async deleteMemoTags({memoId, tagId}: DeleteMemoTagInput): Promise<DeleteMemoTagOutput> {
+        try {
+            await this.memoTags.delete({ memoId, tagId });
+
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error };
         }
     }
 }
