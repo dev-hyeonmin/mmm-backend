@@ -16,6 +16,12 @@ enum UseType {
   Editor
 }
 
+type Tags {
+  id: Float!
+  groupId: Float!
+  name: String!
+}
+
 type Memo {
   id: Float!
   updateAt: DateTime!
@@ -36,6 +42,7 @@ type MemoGroup {
   user: User!
   memos: [Memo!]
   members: [MemoGroupMembers!]
+  tags: [Tags!]
 }
 
 type User {
@@ -137,6 +144,17 @@ type DeleteGroupMemberOutput {
   ok: Boolean!
 }
 
+type AddTagsOutput {
+  error: String
+  ok: Boolean!
+  id: Float
+}
+
+type AddMemoTagOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
   me: User!
   myMemos(input: MyMemosInput!): MyMemosOutput!
@@ -162,6 +180,8 @@ type Mutation {
   inviteGroupMember(input: InviteGroupMemberInput!): InviteGroupMemberOutput!
   acceptGroupMember(input: AcceptGroupMemberInput!): AcceptGroupMemberOutput!
   deleteGroupMember(input: DeleteGroupMemberInput!): DeleteGroupMemberOutput!
+  addTags(input: AddTagsInput!): AddTagsOutput!
+  addMemoTags(input: AddMemoTagInput!): AddMemoTagOutput!
 }
 
 input CreateAccountInput {
@@ -243,6 +263,16 @@ input AcceptGroupMemberInput {
 input DeleteGroupMemberInput {
   userId: Float!
   groupId: Float!
+}
+
+input AddTagsInput {
+  groupId: Float!
+  name: String!
+}
+
+input AddMemoTagInput {
+  memoId: Float!
+  tagId: Float!
 }
 
 type Subscription {

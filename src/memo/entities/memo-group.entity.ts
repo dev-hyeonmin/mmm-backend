@@ -4,6 +4,7 @@ import { User } from "src/users/entities/user.entity";
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { MemoGroupMembers } from "./memo-group-members";
 import { Memo } from "./memo.entity";
+import { Tags } from "./tags";
 
 @InputType("MemoGroupType", { isAbstract: true })
 @ObjectType()
@@ -32,4 +33,12 @@ export class MemoGroup extends CoreEntity {
         { nullable: true }
     )
     members?: MemoGroupMembers[];
+
+    @Field(types => [Tags], { nullable: true })
+    @OneToMany(
+        () => Tags,
+        (tag) => tag.group,
+        { nullable: true, eager: true }
+    )
+    tags?: Tags[];
 }

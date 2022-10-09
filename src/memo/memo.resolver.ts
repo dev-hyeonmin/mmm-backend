@@ -9,6 +9,7 @@ import { MemoService } from "./memo.service";
 import { AcceptGroupMemberInput, AcceptGroupMemberOutput, AcceptInvitationOutput, DeleteGroupMemberInput, DeleteGroupMemberOutput, InviteGroupMemberInput, InviteGroupMemberOutput, MyInvitationOutput } from "./dtos/memo-group-members";
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
+import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput } from "./dtos/tags.dto";
 
 @Resolver()
 export class MeomoResolver {
@@ -119,5 +120,20 @@ export class MeomoResolver {
     })
     acceptInvitation() {
         return this.pubSub.asyncIterator(ACCEPT_INVITATION);
+    }
+
+    /*
+    * TAGS
+    */
+    @UseGuards(AuthGuard)
+    @Mutation(returns => AddTagsOutput)
+    addTags(@Args('input') addTagsInput: AddTagsInput): Promise<AddTagsOutput> {
+        return this.memoService.addTags(addTagsInput);
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation(returns => AddMemoTagOutput)
+    addMemoTags(@Args('input') addMemoTagInput: AddMemoTagInput): Promise<AddMemoTagOutput> {
+        return this.memoService.addMemoTags(addMemoTagInput);
     }
 }

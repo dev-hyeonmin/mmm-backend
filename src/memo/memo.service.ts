@@ -12,6 +12,9 @@ import { AcceptGroupMemberInput, AcceptGroupMemberOutput, DeleteGroupMemberInput
 import { ACCEPT_INVITATION, PUB_SUB } from "src/common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 import { UserService } from "src/users/users.service";
+import { AddMemoTagInput, AddMemoTagOutput, AddTagsInput, AddTagsOutput } from "./dtos/tags.dto";
+import { MemoTags } from "./entities/memo-tags";
+import { Tags } from "./entities/tags";
 
 @Injectable()
 export class MemoService {
@@ -22,6 +25,10 @@ export class MemoService {
         private readonly memo: Repository<Memo>,
         @InjectRepository(MemoGroupMembers)
         private readonly memoGroupMembers: Repository<MemoGroupMembers>,
+        @InjectRepository(Tags)
+        private readonly tags: Repository<Tags>,
+        @InjectRepository(MemoTags)
+        private readonly memoTags: Repository<MemoTags>,
         @Inject(PUB_SUB)
         private readonly pubSub: PubSub,
         private readonly userService: UserService
@@ -78,7 +85,7 @@ export class MemoService {
                 return { ok: false, error: "Group Not Found." };
             }
             
-            const memo = await this.memo.save(this.memo.create({ content, group}));
+            const memo = await this.memo.save(this.memo.create({content, group}));
             return { ok: true, id: memo.id };
         } catch (error) {
             return { ok: false, error };
@@ -300,6 +307,45 @@ export class MemoService {
         } catch (error) {
             console.log(error);
             return false;
+        }
+    }
+
+    /*
+    * TAGS
+    */
+    async addTags({groupId, name}: AddTagsInput): Promise<AddTagsOutput> {
+        try {
+            const group = await this.memoGroup.findOneBy({ id: groupId });
+            if (!group) {
+                return {ok: false, error: "Group not found."}
+            }
+
+            const tag = await this.tags.findOne({where: {groupId, name}});
+            if (tag) {
+                return {ok: false, error: "Tag already exist."}
+            }
+
+            const newTag = await this.tags.save(this.tags.create({ group, name }));
+
+            return { ok: true, id: newTag.id };
+        } catch (error) {
+            return {ok: false, error}
+        }
+    }
+
+    async addMemoTags({memoId, tagId}: AddMemoTagInput): Promise<AddMemoTagOutput> {
+        try {
+            const tag = await this.memoTags.findOneBy({ memoId, tagId });
+
+            if (tag) {
+                return {ok: false, error: "Already exist."}
+            }
+
+            await this.memoTags.save(this.memoTags.create({ memoId, tagId }));
+
+            return { ok: true };
+        } catch (error) {
+            return {ok: false, error}
         }
     }
 }

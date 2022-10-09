@@ -19,6 +19,8 @@ import { MemoGroupMembers } from './memo/entities/memo-group-members';
 import { CommonModule } from './common/common.module';
 import { Context } from 'apollo-server-core';
 import { UploadsModule } from './uploads/uploads.module';
+import { Tags } from './memo/entities/tags';
+import { MemoTags } from './memo/entities/memo-tags';
 
 @Module({
   imports: [
@@ -53,7 +55,7 @@ import { UploadsModule } from './uploads/uploads.module';
           database: process.env.DB_DATABASE,
         }),
       synchronize: true,
-      entities: [User, Verification, MemoGroup, Memo, MemoGroupMembers],
+      entities: [User, Verification, MemoGroup, Memo, MemoGroupMembers, Tags, MemoTags]
     }),
       GraphQLModule.forRoot<ApolloDriverConfig>({
         driver: ApolloDriver,
