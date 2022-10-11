@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Brackets, Repository } from "typeorm";
-import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
+import { CreateMemoInput, CreateMemoOutput, DeleteMemoOutput, EditMemoInput, EditMemoOutput, MemoOutput, SortMemoInput, SortMemoOutput } from "./dtos/memo.dto";
 import { CreateMemoGroupOutput, DeleteMemoGroupOutput, EditMemoGroupInput, EditMemoGroupOutput } from "./dtos/memo-group.dto";
 import { MyMemosInput, MyMemosOutput } from "./dtos/my-memos.dto";
 import { MemoGroup } from "./entities/memo-group.entity";
@@ -66,6 +66,15 @@ export class MemoService {
         }
     }
     
+    async memoById({ id }): Promise<MemoOutput> {
+        try {
+            const memo = await this.memo.findOneBy({ id });
+            return { ok: true, memo };
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+
     async createMemoGroup(user: User, title: string): Promise<CreateMemoGroupOutput> {
         try {
             await this.memoGroup.save(this.memoGroup.create({ title, user }));
@@ -349,16 +358,18 @@ export class MemoService {
         try {
             const memoGroup = await this.memo.findOneBy({ id: memoId });
             const groupId = memoGroup.groupId;
-            const tagId = (await this.addTags({ groupId, name })).id;
 
-            const tag = await this.memoTags.findOneBy({ memoId, tagId });
-            if (tag) {
-                return {ok: false, error: "Already exist."}
+            const tag = await this.tags.findOne({ where: { groupId, name } });
+            let tagId = 0;
+            if (!tag) {
+                tagId = (await this.addTags({ groupId, name })).id;
+            } else {
+                tagId = tag.id;
             }
 
-            await this.memoTags.save(this.memoTags.create({ memoId, tagId }));
+            const memoTag = await this.memoTags.save(this.memoTags.create({ memoId, tagId }));
 
-            return { ok: true };
+            return { ok: true, id: memoTag.tagId };
         } catch (error) {
             return { ok: false, error };
         }

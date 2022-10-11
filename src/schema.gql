@@ -85,6 +85,12 @@ type VerifyEmailOutput {
   ok: Boolean!
 }
 
+type MemoOutput {
+  error: String
+  ok: Boolean!
+  memo: Memo
+}
+
 type CreateMemoOutput {
   error: String
   ok: Boolean!
@@ -166,6 +172,7 @@ type DeleteTagOutput {
 type AddMemoTagOutput {
   error: String
   ok: Boolean!
+  id: Float
 }
 
 type DeleteMemoTagOutput {
@@ -176,11 +183,16 @@ type DeleteMemoTagOutput {
 type Query {
   me: User!
   myMemos(input: MyMemosInput!): MyMemosOutput!
+  memoById(input: MemoInput!): MemoOutput!
   myInvitation: MyInvitationOutput!
 }
 
 input MyMemosInput {
   keyword: String
+}
+
+input MemoInput {
+  id: Float!
 }
 
 type Mutation {

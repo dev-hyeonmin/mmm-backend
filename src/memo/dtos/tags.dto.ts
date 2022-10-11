@@ -33,7 +33,10 @@ export class AddMemoTagInput extends PickType(MemoTags, [
 }
 
 @ObjectType()
-export class AddMemoTagOutput extends CoreOutput { }
+export class AddMemoTagOutput extends CoreOutput {
+    @Field(types => Number, {nullable: true})
+    id?: number;
+}
 
 @InputType()
 export class DeleteMemoTagInput extends PickType(MemoTags, [

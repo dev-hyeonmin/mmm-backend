@@ -4,6 +4,17 @@ import { MemoGroup } from "../entities/memo-group.entity";
 import { Memo } from "../entities/memo.entity";
 
 @InputType()
+export class MemoInput extends PickType(Memo, [
+    'id'
+]) {}
+
+@ObjectType()
+export class MemoOutput extends CoreOutput {
+    @Field(types => Memo, { nullable: true })
+    memo?: Memo;
+}
+
+@InputType()
 export class CreateMemoInput extends PickType(Memo, [
     'content'
 ]) {
