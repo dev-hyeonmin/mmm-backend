@@ -15,7 +15,7 @@ export class MemoTags {
     @ManyToOne(
         () => Memo,
         (memo) => memo.tags,
-        { onDelete: "CASCADE"},
+        { onDelete: "CASCADE" },
     )
     memo: Memo;
 

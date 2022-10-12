@@ -31,7 +31,7 @@ export class Memo extends CoreEntity {
     @OneToMany(
         () => MemoTags,
         (tag) => tag.memo,
-        { onDelete: "CASCADE", eager: true}
+        {onDelete: "CASCADE", eager: true}
     )
     tags?: MemoTags[];
 }

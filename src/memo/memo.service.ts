@@ -68,7 +68,7 @@ export class MemoService {
     
     async memoById({ id }): Promise<MemoOutput> {
         try {
-            const memo = await this.memo.findOneBy({ id });
+            const memo = await this.memo.findOne({ where: id, relations: ['tags'] });
             return { ok: true, memo };
         } catch (error) {
             return { ok: false, error };
@@ -166,7 +166,7 @@ export class MemoService {
             if (!memo) {
                 return { ok: false, error: "Memo Not Found." };
             }
-
+            
             const checkPermission = await this.checkPermission(memo.groupId, userId);
             if (!checkPermission) {
                 return { ok: false, error: "Permission denied." };
@@ -189,7 +189,13 @@ export class MemoService {
                 memo.group = group;
             }
 
-            await this.memo.save(memo);     
+            await this.memo.save({
+                id: memo.id,
+                content: memo.content,
+                orderby: memo.orderby,
+                color: memo.color,
+                group: memo.group
+            });     
             return { ok: true };
         } catch (error) {
             return { ok: false, error };
