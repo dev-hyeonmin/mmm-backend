@@ -3,30 +3,30 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Context } from 'apollo-server-core';
 import * as Joi from 'joi';
 import { join } from 'path';
-import { User } from './users/entities/user.entity';
-import { UsersModule } from './users/users.module';
-import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
-import { Verification } from './users/entities/verification.entity';
-import { MailModule } from './mail/mail.module';
-import { MemoModule } from './memo/memo.module';
-import { Memo } from './memo/entities/memo.entity';
-import { MemoGroup } from './memo/entities/memo-group.entity';
-import { MemoGroupMembers } from './memo/entities/memo-group-members';
 import { CommonModule } from './common/common.module';
-import { Context } from 'apollo-server-core';
-import { UploadsModule } from './uploads/uploads.module';
-import { Tags } from './memo/entities/tags';
+import { JwtMiddleware } from './jwt/jwt.middleware';
+import { JwtModule } from './jwt/jwt.module';
+import { MailModule } from './mail/mail.module';
+import { MemoGroupMembers } from './memo/entities/memo-group-members';
+import { MemoGroup } from './memo/entities/memo-group.entity';
 import { MemoTags } from './memo/entities/memo-tags';
+import { Memo } from './memo/entities/memo.entity';
+import { Tags } from './memo/entities/tags';
+import { MemoModule } from './memo/memo.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { User } from './users/entities/user.entity';
+import { Verification } from './users/entities/verification.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, 
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env' : '.env',
       ignoreEnvFile: process.env.NODE_ENV === "production",
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()

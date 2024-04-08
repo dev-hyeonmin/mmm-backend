@@ -1,20 +1,19 @@
 import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
+import * as dayjs from "dayjs";
 import { Repository } from "typeorm";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entity";
-import * as bcrypt from "bcrypt";
-import * as dayjs from "dayjs";
 //import * as sgMail from "@sendgrid/mail";
-import { UserProfileOutput } from "./dtos/user-profile.dto";
-import { Injectable, Query } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { JwtService } from "src/jwt/jwt.service";
-import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
-import { Verification } from "./entities/verification.entity";
-import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { MailService } from "src/mail/mail.service";
-import { UploadsController } from "src/uploads/uploads.controller";
 import { UploadsService } from "src/uploads/uploads.service";
+import { EditProfileInput, EditProfileOutput } from "./dtos/user-edit.dto";
+import { UserProfileOutput } from "./dtos/user-profile.dto";
+import { VerifyEmailOutput } from "./dtos/verify-email.dto";
+import { Verification } from "./entities/verification.entity";
 
 @Injectable()
 export class UserService {
@@ -109,7 +108,7 @@ export class UserService {
     }
 
     async login({ email, password }: LoginInput): Promise<LoginOutput> {
-        try {            
+        try {      
             const user = await this.users.findOne({ where: { email }, select: ['id', 'password'] });
             if (!user) {
                 return { ok: false, error: "User not found." };
